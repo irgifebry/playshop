@@ -1,6 +1,10 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
+require_once __DIR__ . '/includes/voucher.php';
+require_once __DIR__ . '/includes/email.php';
+require_once __DIR__ . '/includes/whatsapp.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: index.php');
@@ -9,10 +13,14 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $game_id = $_POST['game_id'];
 $game_name = $_POST['game_name'];
-$user_id = $_POST['user_id'];
-$zone_id = $_POST['zone_id'] ?? '';
+$game_user_id = $_POST['user_id'];      // user id in game
+$game_zone_id = $_POST['zone_id'] ?? ''; // zone id in game (optional)
 $product_id = $_POST['product_id'];
 $payment_method = $_POST['payment_method'];
+$voucher_code = $_POST['voucher_code'] ?? '';
+
+$account_user_id = $_SESSION['user_id'] ?? null;
+$account_email = $_SESSION['user_email'] ?? null;
 
 // Ambil info produk
 $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
@@ -20,12 +28,46 @@ $stmt->execute([$product_id]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $admin_fee = 1000;
-$total = $product['price'] + $admin_fee;
+$subtotal = (int)$product['price'];
+
+// Apply voucher (dummy engine)
+$voucher = voucher_apply($pdo, $voucher_code, $subtotal);
+$discount = (int)($voucher['discount'] ?? 0);
+$total = max(0, $subtotal + $admin_fee - $discount);
 
 // Simpan transaksi ke database
 $order_id = 'TRX' . time() . rand(1000, 9999);
-$stmt = $pdo->prepare("INSERT INTO transactions (order_id, game_id, product_id, user_id, zone_id, payment_method, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
-$stmt->execute([$order_id, $game_id, $product_id, $user_id, $zone_id, $payment_method, $total]);
+
+// Prefer new schema columns if available; fallback to legacy columns otherwise
+if (db_has_column($pdo, 'transactions', 'game_user_id')) {
+    $stmt = $pdo->prepare("
+        INSERT INTO transactions
+            (order_id, game_id, product_id, user_id, zone_id, account_user_id, account_email, game_user_id, game_zone_id, payment_method, subtotal, admin_fee, discount_amount, voucher_code, amount, status, created_at)
+        VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+    ");
+    $stmt->execute([
+        $order_id,
+        $game_id,
+        $product_id,
+        $game_user_id,
+        $game_zone_id !== '' ? $game_zone_id : null,
+        $account_user_id,
+        $account_email,
+        $game_user_id,
+        $game_zone_id !== '' ? $game_zone_id : null,
+        $payment_method,
+        $subtotal,
+        $admin_fee,
+        $discount,
+        strtoupper(trim($voucher_code)),
+        $total
+    ]);
+} else {
+    // Legacy: store game user id in user_id and zone in zone_id
+    $stmt = $pdo->prepare("INSERT INTO transactions (order_id, game_id, product_id, user_id, zone_id, payment_method, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+    $stmt->execute([$order_id, $game_id, $product_id, $game_user_id, $game_zone_id, $payment_method, $total]);
+}
 
 $_SESSION['order_id'] = $order_id;
 ?>
@@ -91,11 +133,35 @@ $_SESSION['order_id'] = $order_id;
                             </tr>
                             <tr>
                                 <td>User ID</td>
-                                <td><?php echo $user_id; ?><?php echo $zone_id ? " ($zone_id)" : ''; ?></td>
+                                <td><?php echo $game_user_id; ?><?php echo $game_zone_id ? " ($game_zone_id)" : ''; ?></td>
                             </tr>
                             <tr>
                                 <td>Metode Pembayaran</td>
                                 <td><?php echo $payment_method; ?></td>
+                            </tr>
+                            <tr>
+                                <td>Subtotal</td>
+                                <td>Rp <?php echo number_format($subtotal, 0, ',', '.'); ?></td>
+                            </tr>
+                            <tr>
+                                <td>Diskon</td>
+                                <td>
+                                    <?php if($discount > 0): ?>
+                                        <strong>- Rp <?php echo number_format($discount, 0, ',', '.'); ?></strong>
+                                        <?php if(!empty($voucher['code'])): ?>
+                                            <div style="font-size: 0.9rem; color: #6b7280;">Kode: <?php echo htmlspecialchars($voucher['code']); ?></div>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        Rp 0
+                                        <?php if(!empty($voucher_code) && !($voucher['ok'] ?? false)): ?>
+                                            <div style="font-size: 0.9rem; color: #991b1b;"><?php echo htmlspecialchars($voucher['message'] ?? 'Voucher tidak valid'); ?></div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Biaya Admin</td>
+                                <td>Rp <?php echo number_format($admin_fee, 0, ',', '.'); ?></td>
                             </tr>
                             <tr class="total-row">
                                 <td>Total Bayar</td>

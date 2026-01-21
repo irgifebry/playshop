@@ -8,7 +8,7 @@ if(!isset($_GET['game_id'])) {
 }
 
 $game_id = $_GET['game_id'];
-$stmt = $pdo->prepare("SELECT * FROM games WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM games WHERE id = ? AND is_active = 1");
 $stmt->execute([$game_id]);
 $game = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -18,7 +18,7 @@ if(!$game) {
 }
 
 // Ambil produk untuk game ini
-$stmt = $pdo->prepare("SELECT * FROM products WHERE game_id = ? ORDER BY price");
+$stmt = $pdo->prepare("SELECT * FROM products WHERE game_id = ? AND is_active = 1 ORDER BY price");
 $stmt->execute([$game_id]);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -142,6 +142,16 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
+                    <!-- Step 4: Voucher (Optional) -->
+                    <div class="form-section">
+                        <h3>4. Kode Promo (Opsional)</h3>
+                        <div class="form-row">
+                            <input type="text" name="voucher_code" id="voucher_code" placeholder="Contoh: PLAYSHOP20">
+                            <input type="text" value="Cek promo di halaman Promo" disabled>
+                        </div>
+                        <p class="form-hint">💡 Kode promo akan dihitung saat masuk halaman pembayaran (simulasi)</p>
+                    </div>
+
                     <!-- Order Summary -->
                     <div class="order-summary">
                         <h3>Ringkasan Pesanan</h3>
@@ -152,6 +162,10 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="summary-row">
                             <span>Harga</span>
                             <span id="summary-price">Rp 0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Diskon</span>
+                            <span id="summary-discount">Rp 0</span>
                         </div>
                         <div class="summary-row">
                             <span>Biaya Admin</span>

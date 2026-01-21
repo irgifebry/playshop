@@ -17,6 +17,9 @@ $today_revenue = $stmt->fetch()['total'] ?? 0;
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM transactions WHERE status = 'pending'");
 $pending_transactions = $stmt->fetch()['total'];
 
+$stmt = $pdo->query("SELECT COUNT(*) as total FROM games");
+$total_games = $stmt->fetch()['total'];
+
 // Transaksi terbaru
 $stmt = $pdo->query("SELECT t.*, g.name as game_name, p.name as product_name 
                      FROM transactions t 
@@ -36,20 +39,7 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <span class="logo-icon">🎮</span>
-                <h3>Admin Panel</h3>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="nav-item active">📊 Dashboard</a>
-                <a href="dashboard.php" class="nav-item">🎮 Kelola Produk</a>
-                <a href="dashboard.php" class="nav-item">💰 Transaksi</a>
-                <a href="dashboard.php" class="nav-item">📈 Laporan</a>
-                <a href="logout.php" class="nav-item">🚪 Logout</a>
-            </nav>
-        </aside>
+        <?php include 'sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -84,7 +74,7 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="stat-card purple">
                     <div class="stat-icon">🎮</div>
                     <div class="stat-info">
-                        <h3>5</h3>
+                        <h3><?php echo $total_games; ?></h3>
                         <p>Total Game</p>
                     </div>
                 </div>
@@ -108,7 +98,11 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tbody>
                         <?php foreach($recent_transactions as $trx): ?>
                         <tr>
-                            <td><?php echo $trx['order_id']; ?></td>
+                            <td>
+                                <a href="transaction-detail.php?order_id=<?php echo urlencode($trx['order_id']); ?>" style="color: inherit; text-decoration: underline;">
+                                    <?php echo $trx['order_id']; ?>
+                                </a>
+                            </td>
                             <td><?php echo $trx['game_name']; ?></td>
                             <td><?php echo $trx['product_name']; ?></td>
                             <td><?php echo $trx['user_id']; ?></td>

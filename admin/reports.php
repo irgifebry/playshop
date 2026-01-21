@@ -11,6 +11,36 @@ if(!isset($_SESSION['admin_logged_in'])) {
 $start_date = $_GET['start_date'] ?? date('Y-m-01');
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
+// Export CSV (Excel-compatible)
+if (($_GET['export'] ?? '') === 'csv') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="playshop_report_' . $start_date . '_' . $end_date . '.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['order_id','game','product','user_id','payment_method','amount','status','created_at']);
+
+    $stmt = $pdo->prepare("SELECT t.order_id, g.name as game_name, p.name as product_name, t.user_id, t.payment_method, t.amount, t.status, t.created_at
+                           FROM transactions t
+                           JOIN games g ON t.game_id = g.id
+                           JOIN products p ON t.product_id = p.id
+                           WHERE DATE(t.created_at) BETWEEN ? AND ?
+                           ORDER BY t.created_at DESC");
+    $stmt->execute([$start_date, $end_date]);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        fputcsv($out, [
+            $row['order_id'],
+            $row['game_name'],
+            $row['product_name'],
+            $row['user_id'],
+            $row['payment_method'],
+            $row['amount'],
+            $row['status'],
+            $row['created_at'],
+        ]);
+    }
+    fclose($out);
+    exit;
+}
+
 // Get transaction summary
 $stmt = $pdo->prepare("SELECT 
                        COUNT(*) as total_transactions,
@@ -49,7 +79,10 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <main class="main-content">
             <div class="content-header">
                 <h1>Laporan Transaksi</h1>
-                <button onclick="window.print()" class="btn-primary">🖨️ Print Laporan</button>
+                <div style="display:flex; gap: 10px;">
+                    <a class="btn-primary" href="?start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&export=csv" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">⬇️ Export CSV</a>
+                    <button onclick="window.print()" class="btn-primary">🖨️ Print Laporan</button>
+                </div>
             </div>
 
             <!-- Date Filter -->

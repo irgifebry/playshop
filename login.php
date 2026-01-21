@@ -12,18 +12,22 @@ $error = '';
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
-    
+
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_email'] = $user['email'];
-        
-        header('Location: index.php');
-        exit;
+        if (($user['status'] ?? 'active') !== 'active') {
+            $error = 'Akun Anda sedang dinonaktifkan.';
+        } else {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
+
+            header('Location: index.php');
+            exit;
+        }
     } else {
         $error = 'Email atau password salah!';
     }
@@ -50,46 +54,60 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <ul class="nav-menu">
                     <li><a href="index.php">Home</a></li>
-                    <li><a href="register.php">Daftar</a></li>
+                    <li><a href="promo.php">Promo</a></li>
+                    <li><a href="check-order.php">Cek Order</a></li>
+                    <li><a href="faq.php">FAQ</a></li>
+                    <li><a href="contact.php">Kontak</a></li>
+                    <li><a href="about.php">Tentang</a></li>
+                    <li><a href="login.php" class="active">Login</a></li>
+                    <li><a href="admin/login.php">Admin</a></li>
                 </ul>
             </div>
         </nav>
     </header>
 
-    <section class="auth-section">
+    <section class="checkout-section">
         <div class="container">
-            <div class="auth-container">
-                <div class="auth-box">
-                    <div class="auth-header">
-                        <h2>Login ke Akun Anda</h2>
-                        <p>Selamat datang kembali!</p>
+            <div class="checkout-container" style="max-width: 520px;">
+                <div class="content-header" style="margin-bottom: 1rem;">
+                    <h1 style="margin:0;">Login</h1>
+                    <p style="margin: 6px 0 0; color: #6b7280;">Masuk untuk melihat profil & riwayat transaksi.</p>
+                </div>
+
+                <?php if($error): ?>
+                    <div class="alert error"><?php echo $error; ?></div>
+                <?php endif; ?>
+
+                <form method="POST">
+                    <div class="form-section">
+                        <h3>Email</h3>
+                        <div class="form-row" style="grid-template-columns: 1fr;">
+                            <input type="email" name="email" placeholder="email@example.com" required>
+                        </div>
                     </div>
 
-                    <?php if($error): ?>
-                        <div class="alert error"><?php echo $error; ?></div>
-                    <?php endif; ?>
-
-                    <form method="POST" class="auth-form">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="Masukkan email" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Password</label>
+                    <div class="form-section">
+                        <h3>Password</h3>
+                        <div class="form-row" style="grid-template-columns: 1fr;">
                             <input type="password" name="password" placeholder="Masukkan password" required>
                         </div>
-                        
-                        <button type="submit" class="btn-submit">LOGIN</button>
-                    </form>
-
-                    <div class="auth-footer">
-                        <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
-                        <p><a href="index.php">Lanjut tanpa login</a></p>
                     </div>
+
+                    <button type="submit" class="btn-checkout">LOGIN</button>
+                </form>
+
+                <div style="margin-top: 1.25rem; display:flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <a href="register.php" style="color: var(--primary); font-weight: 700; text-decoration: none;">Belum punya akun? Daftar</a>
+                    <a href="index.php" style="color: #6b7280; text-decoration: none;">Lanjut tanpa login</a>
                 </div>
             </div>
         </div>
     </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
+        </div>
+    </footer>
 </body>
 </html>

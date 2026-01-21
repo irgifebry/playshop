@@ -2,8 +2,24 @@
 session_start();
 require_once 'config/database.php';
 
+// Ambil banner aktif (opsional)
+$banners = [];
+try {
+    $stmt = $pdo->query("
+        SELECT *
+        FROM banners
+        WHERE is_active = 1
+          AND (start_date IS NULL OR start_date <= CURDATE())
+          AND (end_date IS NULL OR end_date >= CURDATE())
+        ORDER BY sort_order ASC, created_at DESC
+    ");
+    $banners = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    $banners = [];
+}
+
 // Ambil data game dari database
-$stmt = $pdo->query("SELECT * FROM games ORDER BY name");
+$stmt = $pdo->query("SELECT * FROM games WHERE is_active = 1 ORDER BY name");
 $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -27,11 +43,39 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <ul class="nav-menu">
                     <li><a href="index.php" class="active">Home</a></li>
                     <li><a href="#games">Games</a></li>
+                    <li><a href="promo.php">Promo</a></li>
+                    <li><a href="check-order.php">Cek Order</a></li>
+                    <li><a href="faq.php">FAQ</a></li>
+                    <li><a href="contact.php">Kontak</a></li>
+                    <li><a href="about.php">Tentang</a></li>
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                        <li><a href="profile.php">Profil</a></li>
+                        <li><a href="logout.php">Logout</a></li>
+                    <?php else: ?>
+                        <li><a href="login.php">Login</a></li>
+                    <?php endif; ?>
                     <li><a href="admin/login.php">Admin</a></li>
                 </ul>
             </div>
         </nav>
     </header>
+
+    <?php if (count($banners) > 0): ?>
+    <section class="banner-slider">
+        <div class="container">
+            <div class="banner-track">
+                <?php foreach($banners as $b): ?>
+                    <a class="banner-item" href="<?php echo htmlspecialchars($b['link_url'] ?: '#'); ?>" style="text-decoration:none;" <?php echo ($b['link_url'] ?? '') ? '' : 'onclick="return false;"'; ?>>
+                        <img src="<?php echo htmlspecialchars($b['image_path']); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
+                        <div class="banner-caption">
+                            <span class="banner-title"><?php echo htmlspecialchars($b['title']); ?></span>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -72,7 +116,10 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="game-info">
                         <h3 class="game-name"><?php echo $game['name']; ?></h3>
                         <p class="game-price">Mulai dari Rp <?php echo number_format($game['min_price'], 0, ',', '.'); ?></p>
-                        <button class="btn-topup">Top Up Sekarang</button>
+                        <div class="game-actions">
+                            <button class="btn-topup">Top Up Sekarang</button>
+                            <a class="btn-secondary btn-small" href="game-detail.php?game_id=<?php echo (int)$game['id']; ?>" onclick="event.stopPropagation();">Detail</a>
+                        </div>
                     </div>
                 </div>
                 <?php endforeach; ?>

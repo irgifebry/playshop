@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
 
 if(!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -50,8 +51,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get transaction stats
-$stmt = $pdo->prepare("SELECT COUNT(*) as total, SUM(amount) as total_spent FROM transactions WHERE user_id = ? AND status = 'success'");
-$stmt->execute([$user['email']]); // Using email as identifier
+$statsQuery = "SELECT COUNT(*) as total, SUM(amount) as total_spent FROM transactions WHERE status = 'success' AND ";
+$statsParams = [];
+if (db_has_column($pdo, 'transactions', 'account_user_id')) {
+    $statsQuery .= " account_user_id = ? ";
+    $statsParams[] = (int)$user_id;
+} else {
+    $statsQuery .= " user_id = ? ";
+    $statsParams[] = $user['email']; // legacy
+}
+$stmt = $pdo->prepare($statsQuery);
+$stmt->execute($statsParams);
 $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>

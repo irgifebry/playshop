@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
 
 if(!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -9,32 +10,69 @@ if(!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Get user email for transactions
-$stmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+// Use account_user_id if schema supports it, fallback to legacy (email stored in transactions.user_id)
+$account_user_id = (int)$user_id;
+$account_email = $_SESSION['user_email'] ?? null;
+if (!$account_email) {
+    $stmt = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $u = $stmt->fetch(PDO::FETCH_ASSOC);
+    $account_email = $u['email'] ?? null;
+}
 
 // Get all transactions
 $filter = $_GET['filter'] ?? 'all';
+$start_date = $_GET['start_date'] ?? '';
+$end_date = $_GET['end_date'] ?? '';
+$game_filter = $_GET['game_id'] ?? '';
+
 $query = "SELECT t.*, g.name as game_name, p.name as product_name 
           FROM transactions t 
           JOIN games g ON t.game_id = g.id 
           JOIN products p ON t.product_id = p.id 
-          WHERE t.user_id = ?";
+          WHERE ";
+
+$params = [];
+if (db_has_column($pdo, 'transactions', 'account_user_id')) {
+    $query .= " t.account_user_id = ? ";
+    $params[] = $account_user_id;
+} else {
+    $query .= " t.user_id = ? ";
+    $params[] = $account_email;
+}
 
 if($filter !== 'all') {
     $query .= " AND t.status = ?";
+    $params[] = $filter;
+}
+
+$dateClause = '';
+if ($start_date !== '' && $end_date !== '') {
+    $dateClause = " AND DATE(t.created_at) BETWEEN ? AND ? ";
+    $params[] = $start_date;
+    $params[] = $end_date;
+} elseif ($start_date !== '') {
+    $dateClause = " AND DATE(t.created_at) >= ? ";
+    $params[] = $start_date;
+} elseif ($end_date !== '') {
+    $dateClause = " AND DATE(t.created_at) <= ? ";
+    $params[] = $end_date;
+}
+$query .= $dateClause;
+
+if ($game_filter !== '') {
+    $query .= " AND t.game_id = ? ";
+    $params[] = (int)$game_filter;
 }
 
 $query .= " ORDER BY t.created_at DESC";
 
 $stmt = $pdo->prepare($query);
-if($filter !== 'all') {
-    $stmt->execute([$user['email'], $filter]);
-} else {
-    $stmt->execute([$user['email']]);
-}
+$stmt->execute($params);
 $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Dropdown games
+$games = $pdo->query("SELECT id, name FROM games ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -77,6 +115,32 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <a href="?filter=failed" class="filter-tab <?php echo $filter === 'failed' ? 'active' : ''; ?>">Gagal</a>
             </div>
 
+            <div style="background: #ffffff; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); margin-bottom: 1.5rem;">
+                <form method="GET" class="filter-form" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                    <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
+                    <div class="form-group" style="margin: 0;">
+                        <label>Dari Tanggal</label>
+                        <input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>Sampai Tanggal</label>
+                        <input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>Game</label>
+                        <select name="game_id">
+                            <option value="">Semua Game</option>
+                            <?php foreach($games as $g): ?>
+                                <option value="<?php echo $g['id']; ?>" <?php echo ((string)$game_filter === (string)$g['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($g['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit" style="margin: 0;">Terapkan</button>
+                </form>
+            </div>
+
             <!-- Transactions List -->
             <div class="transactions-list">
                 <?php if(count($transactions) > 0): ?>
@@ -110,7 +174,12 @@ $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <div class="trx-row">
                                 <span>User ID</span>
-                                <strong><?php echo $trx['user_id']; ?></strong>
+                                <strong>
+                                    <?php
+                                    // Prefer new column if exists, otherwise legacy user_id is already game user id
+                                    echo htmlspecialchars($trx['game_user_id'] ?? $trx['user_id']);
+                                    ?>
+                                </strong>
                             </div>
                             <div class="trx-row">
                                 <span>Pembayaran</span>

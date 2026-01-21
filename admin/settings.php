@@ -8,10 +8,54 @@ if(!isset($_SESSION['admin_logged_in'])) {
 }
 
 $success = '';
+$error = '';
+
+function load_settings(PDO $pdo): array {
+    try {
+        $rows = $pdo->query("SELECT setting_key, setting_value FROM settings")->fetchAll(PDO::FETCH_ASSOC);
+        $out = [];
+        foreach ($rows as $r) {
+            $out[(string)$r['setting_key']] = (string)$r['setting_value'];
+        }
+        return $out;
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+function setting(array $settings, string $key, string $default = ''): string {
+    return $settings[$key] ?? $default;
+}
+
+$settings = load_settings($pdo);
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Dummy save settings
-    $success = 'Pengaturan berhasil disimpan!';
+    try {
+        $site_name = trim($_POST['site_name'] ?? '');
+        $contact_email = trim($_POST['contact_email'] ?? '');
+        $contact_whatsapp = trim($_POST['contact_whatsapp'] ?? '');
+        $payment_mode = trim($_POST['payment_mode'] ?? 'dummy');
+
+        if ($site_name === '') {
+            throw new RuntimeException('Nama website wajib diisi');
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+        $pairs = [
+            ['site_name', $site_name],
+            ['contact_email', $contact_email],
+            ['contact_whatsapp', $contact_whatsapp],
+            ['payment_mode', $payment_mode],
+        ];
+        foreach ($pairs as $p) {
+            $stmt->execute([$p[0], $p[1]]);
+        }
+
+        $success = 'Pengaturan berhasil disimpan!';
+        $settings = load_settings($pdo);
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -36,21 +80,25 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alert success"><?php echo $success; ?></div>
             <?php endif; ?>
 
+            <?php if($error): ?>
+                <div class="alert error"><?php echo $error; ?></div>
+            <?php endif; ?>
+
             <div class="settings-container">
                 <form method="POST" class="settings-form">
                     <div class="settings-section">
                         <h2>Informasi Website</h2>
                         <div class="form-group">
                             <label>Nama Website</label>
-                            <input type="text" value="PLAYSHOP.ID" readonly>
+                            <input type="text" name="site_name" value="<?php echo htmlspecialchars(setting($settings, 'site_name', 'PLAYSHOP.ID')); ?>">
                         </div>
                         <div class="form-group">
                             <label>Email Kontak</label>
-                            <input type="email" value="support@playshop.id">
+                            <input type="email" name="contact_email" value="<?php echo htmlspecialchars(setting($settings, 'contact_email', 'support@playshop.id')); ?>">
                         </div>
                         <div class="form-group">
                             <label>WhatsApp</label>
-                            <input type="text" value="+62 812-3456-7890">
+                            <input type="text" name="contact_whatsapp" value="<?php echo htmlspecialchars(setting($settings, 'contact_whatsapp', '+62 812-3456-7890')); ?>">
                         </div>
                     </div>
 
@@ -58,9 +106,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h2>Payment Gateway (Dummy)</h2>
                         <div class="form-group">
                             <label>Status Payment Gateway</label>
-                            <select>
-                                <option>✅ Aktif (Dummy Mode)</option>
-                                <option>❌ Non-aktif</option>
+                            <select name="payment_mode">
+                                <option value="dummy" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'dummy') ? 'selected' : ''; ?>>✅ Aktif (Dummy Mode)</option>
+                                <option value="off" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'off') ? 'selected' : ''; ?>>❌ Non-aktif</option>
                             </select>
                         </div>
                         <p class="setting-note">⚠️ Website menggunakan payment gateway dummy untuk simulasi</p>
