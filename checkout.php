@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
 
 if(!isset($_GET['game_id'])) {
     header('Location: index.php');
@@ -69,7 +70,11 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Game Info -->
                 <div class="checkout-header">
                     <div class="game-banner" style="background: linear-gradient(135deg, <?php echo $game['color_start']; ?>, <?php echo $game['color_end']; ?>);">
-                        <span class="banner-icon"><?php echo $game['icon']; ?></span>
+                        <?php if (!empty($game['image_path'])): ?>
+                            <img src="<?php echo htmlspecialchars(asset_url($game['image_path'])); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" style="width:64px;height:64px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,0.2);" />
+                        <?php else: ?>
+                            <span class="banner-icon"><?php echo $game['icon']; ?></span>
+                        <?php endif; ?>
                         <div>
                             <h2><?php echo $game['name']; ?></h2>
                             <p>Top Up Diamond/UC</p>

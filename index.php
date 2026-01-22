@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
 
 // Ambil banner aktif (opsional)
 $banners = [];
@@ -66,7 +67,8 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="banner-track">
                 <?php foreach($banners as $b): ?>
                     <a class="banner-item" href="<?php echo htmlspecialchars($b['link_url'] ?: '#'); ?>" style="text-decoration:none;" <?php echo ($b['link_url'] ?? '') ? '' : 'onclick="return false;"'; ?>>
-                        <img src="<?php echo htmlspecialchars($b['image_path']); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
+                        <img src="<?php echo htmlspecialchars(asset_url($b['image_path'])); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
+                        
                         <div class="banner-caption">
                             <span class="banner-title"><?php echo htmlspecialchars($b['title']); ?></span>
                         </div>
@@ -111,7 +113,11 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach($games as $game): ?>
                 <div class="game-card" onclick="selectGame(<?php echo $game['id']; ?>, '<?php echo $game['name']; ?>')">
                     <div class="game-image" style="background: linear-gradient(135deg, <?php echo $game['color_start']; ?>, <?php echo $game['color_end']; ?>);">
-                        <span class="game-icon"><?php echo $game['icon']; ?></span>
+                        <?php if (!empty($game['image_path'])): ?>
+                            <img class="game-thumb" src="<?php echo htmlspecialchars(asset_url($game['image_path'])); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" />
+                        <?php else: ?>
+                            <span class="game-icon"><?php echo $game['icon']; ?></span>
+                        <?php endif; ?>
                     </div>
                     <div class="game-info">
                         <h3 class="game-name"><?php echo $game['name']; ?></h3>

@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 require_once __DIR__ . '/../includes/upload.php';
+require_once __DIR__ . '/../includes/db_utils.php';
 
 if(!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
@@ -17,16 +18,7 @@ function safe_int($v, $default = 0): int {
 }
 
 function to_public_path(string $absPath): string {
-    $root = realpath(__DIR__ . '/..');
-    $real = realpath($absPath) ?: $absPath;
-    if ($root) {
-        $rel = str_replace($root, '', $real);
-    } else {
-        $rel = $real;
-    }
-    $rel = str_replace('\\', '/', $rel);
-    if (substr($rel, 0, 1) !== '/') $rel = '/' . ltrim($rel, '/');
-    return $rel;
+    return public_rel_path_from_abs($absPath);
 }
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -186,7 +178,7 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
                             <td><?php echo (int)$game['id']; ?></td>
                             <td>
                                 <?php if (!empty($game['image_path'])): ?>
-                                    <img src="<?php echo htmlspecialchars($game['image_path']); ?>" alt="game" style="width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid #e5e7eb;" />
+                                    <img src="<?php echo htmlspecialchars(asset_url($game['image_path'])); ?>" alt="game" style="width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid #e5e7eb;" />
                                 <?php else: ?>
                                     <span style="font-size: 2rem;"><?php echo htmlspecialchars($game['icon']); ?></span>
                                 <?php endif; ?>

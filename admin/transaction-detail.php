@@ -130,13 +130,13 @@ $gameZoneId = $trx['game_zone_id'] ?? $trx['zone_id'];
                 </table>
 
                 <h2 style="margin-top: 24px;">Update Status</h2>
-                <form method="POST" style="display:flex; gap: 12px; align-items: center;">
-                    <select name="status" required style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 10px;">
+                <form method="POST" class="trx-status-form">
+                    <select name="status" required class="trx-status-select">
                         <option value="pending" <?php echo $trx['status']==='pending'?'selected':''; ?>>Pending</option>
                         <option value="success" <?php echo $trx['status']==='success'?'selected':''; ?>>Success</option>
                         <option value="failed" <?php echo $trx['status']==='failed'?'selected':''; ?>>Failed</option>
                     </select>
-                    <button type="submit" class="btn-submit" style="margin:0;">Simpan</button>
+                    <button type="submit" class="btn-submit trx-status-submit" style="margin:0;">Simpan</button>
                 </form>
             </div>
         </main>

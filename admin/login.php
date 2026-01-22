@@ -37,7 +37,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <span class="logo-icon">🎮</span>
+                <span class="logo-icon" aria-label="PLAYSHOP.ID"></span>
                 <h2>Admin Panel</h2>
                 <p>PLAYSHOP.ID</p>
             </div>

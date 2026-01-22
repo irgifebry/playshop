@@ -7,9 +7,22 @@ if(!isset($_SESSION['admin_logged_in'])) {
     exit;
 }
 
-// Get date filter
-$start_date = $_GET['start_date'] ?? date('Y-m-01');
-$end_date = $_GET['end_date'] ?? date('Y-m-d');
+// Get date filter (robust): handle empty/invalid values & reversed ranges
+function normalize_date_ymd(string $raw, string $fallback): string {
+    if ($raw === '') return $fallback;
+    $dt = DateTime::createFromFormat('Y-m-d', $raw);
+    if (!$dt) return $fallback;
+    // Ensure strict match (prevents weird parsing like 2026-13-40)
+    if ($dt->format('Y-m-d') !== $raw) return $fallback;
+    return $raw;
+}
+
+$start_date = normalize_date_ymd((string)($_GET['start_date'] ?? ''), date('Y-m-01'));
+$end_date = normalize_date_ymd((string)($_GET['end_date'] ?? ''), date('Y-m-d'));
+
+if ($start_date > $end_date) {
+    [$start_date, $end_date] = [$end_date, $start_date];
+}
 
 // Export CSV (Excel-compatible)
 if (($_GET['export'] ?? '') === 'csv') {
@@ -90,11 +103,11 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <form method="GET" class="filter-form">
                     <div class="form-group">
                         <label>Dari Tanggal</label>
-                        <input type="date" name="start_date" value="<?php echo $start_date; ?>">
+                        <input type="date" name="start_date" required value="<?php echo htmlspecialchars($start_date); ?>">
                     </div>
                     <div class="form-group">
                         <label>Sampai Tanggal</label>
-                        <input type="date" name="end_date" value="<?php echo $end_date; ?>">
+                        <input type="date" name="end_date" required value="<?php echo htmlspecialchars($end_date); ?>">
                     </div>
                     <button type="submit" class="btn-filter">Filter</button>
                 </form>
@@ -105,39 +118,40 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="stat-card blue">
                     <div class="stat-icon">📊</div>
                     <div class="stat-info">
-                        <h3><?php echo $summary['total_transactions']; ?></h3>
+                        <h3><?php echo (int)($summary['total_transactions'] ?? 0); ?></h3>
                         <p>Total Transaksi</p>
                     </div>
                 </div>
 
-                <div class="stat-card green">
-                    <div class="stat-icon">✅</div>
-                    <div class="stat-info">
-                        <h3><?php echo $summary['success_count']; ?></h3>
+                    <div class="stat-card green">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                        <h3><?php echo (int)($summary['success_count'] ?? 0); ?></h3>
                         <p>Berhasil</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="stat-card yellow">
-                    <div class="stat-icon">⏳</div>
-                    <div class="stat-info">
-                        <h3><?php echo $summary['pending_count']; ?></h3>
+                    <div class="stat-card yellow">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                        <h3><?php echo (int)($summary['pending_count'] ?? 0); ?></h3>
                         <p>Pending</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="stat-card purple">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-info">
-                        <h3>Rp <?php echo number_format($summary['total_revenue'], 0, ',', '.'); ?></h3>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                        <h3>Rp <?php echo number_format((int)($summary['total_revenue'] ?? 0), 0, ',', '.'); ?></h3>
                         <p>Total Pendapatan</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Revenue by Game -->
             <div class="table-container">
                 <h2>Pendapatan Per Game</h2>
+                <p style="margin: 6px 0 14px; color: #6b7280;">Catatan: tabel ini menghitung transaksi dengan status <strong>success</strong>.</p>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -147,13 +161,19 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($by_game as $game): ?>
+                        <?php if (count($by_game) === 0): ?>
                         <tr>
-                            <td><strong><?php echo $game['name']; ?></strong></td>
-                            <td><?php echo $game['count']; ?>x</td>
-                            <td>Rp <?php echo number_format($game['revenue'], 0, ',', '.'); ?></td>
+                            <td colspan="3" style="text-align:center; color:#6b7280; padding: 18px;">Tidak ada data transaksi success untuk rentang tanggal ini.</td>
                         </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach($by_game as $game): ?>
+                            <tr>
+                                <td><strong><?php echo $game['name']; ?></strong></td>
+                                <td><?php echo $game['count']; ?>x</td>
+                                <td>Rp <?php echo number_format((int)$game['revenue'], 0, ',', '.'); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

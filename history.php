@@ -115,18 +115,18 @@ $games = $pdo->query("SELECT id, name FROM games ORDER BY name")->fetchAll(PDO::
                 <a href="?filter=failed" class="filter-tab <?php echo $filter === 'failed' ? 'active' : ''; ?>">Gagal</a>
             </div>
 
-            <div style="background: #ffffff; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); margin-bottom: 1.5rem;">
-                <form method="GET" class="filter-form" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+            <div class="history-filter-card">
+                <form method="GET" class="history-filter-form">
                     <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-                    <div class="form-group" style="margin: 0;">
+                    <div class="form-group">
                         <label>Dari Tanggal</label>
                         <input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
                     </div>
-                    <div class="form-group" style="margin: 0;">
+                    <div class="form-group">
                         <label>Sampai Tanggal</label>
                         <input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
                     </div>
-                    <div class="form-group" style="margin: 0;">
+                    <div class="form-group">
                         <label>Game</label>
                         <select name="game_id">
                             <option value="">Semua Game</option>
@@ -137,7 +137,7 @@ $games = $pdo->query("SELECT id, name FROM games ORDER BY name")->fetchAll(PDO::
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <button type="submit" class="btn-submit" style="margin: 0;">Terapkan</button>
+                    <button type="submit" class="btn-primary history-apply-btn">Terapkan</button>
                 </form>
             </div>
 
