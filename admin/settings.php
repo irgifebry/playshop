@@ -111,7 +111,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="off" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'off') ? 'selected' : ''; ?>>❌ Non-aktif</option>
                             </select>
                         </div>
-                        <p class="setting-note">⚠️ Website menggunakan payment gateway dummy untuk simulasi</p>
                     </div>
 
                     <div class="settings-section">
