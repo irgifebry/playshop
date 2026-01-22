@@ -154,7 +154,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="text" name="voucher_code" id="voucher_code" placeholder="Contoh: PLAYSHOP20">
                             <input type="text" value="Cek promo di halaman Promo" disabled>
                         </div>
-                        <p class="form-hint">💡 Kode promo akan dihitung saat masuk halaman pembayaran (simulasi)</p>
+                        <p class="form-hint">💡 Kode promo akan dihitung saat masuk halaman pembayaran</p>
                     </div>
 
                     <!-- Order Summary -->

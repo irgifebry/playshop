@@ -201,7 +201,7 @@ textarea {
     border-color: var(--secondary);
     animation: fadeInUp 2s;
     font-size: .85rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .feature-icon {
@@ -210,12 +210,12 @@ textarea {
 
 /* ========== GAMES SECTION ========== */
 .games-section {
-    padding: 2.5rem 0;
+    padding: 1.5rem 0;
 }
 
 .section-title {
     text-align: center;
-    font-size: 1.9rem;
+    font-size: 2rem;
     margin-bottom: 0.3rem;
     color: var(--secondary);
 }
