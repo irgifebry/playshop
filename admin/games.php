@@ -28,6 +28,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'add') {
             $name = trim($_POST['name'] ?? '');
             $icon = trim($_POST['icon'] ?? '🎮');
+            $category = trim($_POST['category'] ?? 'Other');
             $color_start = trim($_POST['color_start'] ?? '#10b981');
             $color_end = trim($_POST['color_end'] ?? '#059669');
             $min_price = safe_int($_POST['min_price'] ?? 5000, 5000);
@@ -49,7 +50,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $image_path = to_public_path((string)$upload['path']);
             }
 
-            $stmt = $pdo->prepare("INSERT INTO games (name, icon, image_path, description, how_to_topup, faq, color_start, color_end, min_price, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO games (name, icon, image_path, description, how_to_topup, faq, color_start, color_end, min_price, is_active, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $name,
                 $icon !== '' ? $icon : '🎮',
@@ -60,8 +61,27 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $color_start,
                 $color_end,
                 $min_price,
-                $is_active
+                $is_active,
+                $category !== '' ? $category : 'Other'
             ]);
+            $game_id = $pdo->lastInsertId();
+            
+            // Add products (nominal/asset) if provided
+            $product_names = $_POST['product_names'] ?? [];
+            $product_prices = $_POST['product_prices'] ?? [];
+            
+            if (!empty($product_names)) {
+                $stmt = $pdo->prepare("INSERT INTO products (game_id, name, price, is_active) VALUES (?, ?, ?, 1)");
+                for ($i = 0; $i < count($product_names); $i++) {
+                    $pname = trim($product_names[$i] ?? '');
+                    $pprice = safe_int($product_prices[$i] ?? 0);
+                    
+                    if (!empty($pname) && $pprice > 0) {
+                        $stmt->execute([$game_id, $pname, $pprice]);
+                    }
+                }
+            }
+            
             $success = 'Game berhasil ditambahkan!';
         }
 
@@ -69,6 +89,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = safe_int($_POST['game_id'] ?? 0);
             $name = trim($_POST['name'] ?? '');
             $icon = trim($_POST['icon'] ?? '🎮');
+            $category = trim($_POST['category'] ?? 'Other');
             $color_start = trim($_POST['color_start'] ?? '#10b981');
             $color_end = trim($_POST['color_end'] ?? '#059669');
             $min_price = safe_int($_POST['min_price'] ?? 5000, 5000);
@@ -93,7 +114,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $image_path = to_public_path((string)$upload['path']);
             }
 
-            $stmt = $pdo->prepare("UPDATE games SET name = ?, icon = ?, image_path = ?, description = ?, how_to_topup = ?, faq = ?, color_start = ?, color_end = ?, min_price = ?, is_active = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE games SET name = ?, icon = ?, image_path = ?, description = ?, how_to_topup = ?, faq = ?, color_start = ?, color_end = ?, min_price = ?, is_active = ?, category = ? WHERE id = ?");
             $stmt->execute([
                 $name,
                 $icon !== '' ? $icon : '🎮',
@@ -105,8 +126,56 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $color_end,
                 $min_price,
                 $is_active,
+                $category !== '' ? $category : 'Other',
                 $id
             ]);
+            
+            // Handle products (nominal/asset) update
+            if (isset($_POST['products_action'])) {
+                // Delete products marked for deletion
+                $product_delete_ids = $_POST['product_delete_ids'] ?? [];
+                if (!empty($product_delete_ids)) {
+                    // product_delete_ids bisa array atau string comma-separated
+                    $delete_ids = [];
+                    foreach ($product_delete_ids as $pid_str) {
+                        $pid = safe_int($pid_str);
+                        if ($pid > 0) {
+                            $delete_ids[] = $pid;
+                        }
+                    }
+                    
+                    if (!empty($delete_ids)) {
+                        $stmt = $pdo->prepare("DELETE FROM products WHERE id = ? AND game_id = ?");
+                        foreach ($delete_ids as $pid) {
+                            $stmt->execute([$pid, $id]);
+                        }
+                    }
+                }
+                
+                // Update existing products
+                $product_ids = $_POST['product_ids'] ?? [];
+                $product_names = $_POST['product_names'] ?? [];
+                $product_prices = $_POST['product_prices'] ?? [];
+                
+                $update_stmt = $pdo->prepare("UPDATE products SET name = ?, price = ? WHERE id = ? AND game_id = ?");
+                $insert_stmt = $pdo->prepare("INSERT INTO products (game_id, name, price, is_active) VALUES (?, ?, ?, 1)");
+                
+                for ($i = 0; $i < count($product_names); $i++) {
+                    $pname = trim($product_names[$i] ?? '');
+                    $pprice = safe_int($product_prices[$i] ?? 0);
+                    
+                    if (!empty($pname) && $pprice > 0) {
+                        $pid = safe_int($product_ids[$i] ?? 0);
+                        
+                        if ($pid > 0) {
+                            $update_stmt->execute([$pname, $pprice, $pid, $id]);
+                        } else {
+                            $insert_stmt->execute([$id, $pname, $pprice]);
+                        }
+                    }
+                }
+            }
+            
             $success = 'Game berhasil diupdate!';
         }
 
@@ -131,6 +200,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+$products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -211,6 +282,7 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
                                     "description" => (string)($game["description"] ?? ""),
                                     "how_to_topup" => (string)($game["how_to_topup"] ?? ""),
                                     "faq" => (string)($game["faq"] ?? ""),
+                                    "products" => array_values(array_filter($products, function($p) use ($game) { return $p["game_id"] == $game["id"]; }))
                                 ], JSON_UNESCAPED_UNICODE); ?>)'>Edit</button>
 
                                 <form method="POST" style="display: inline;">
@@ -241,6 +313,8 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" id="modalAction" value="add">
                 <input type="hidden" name="game_id" id="game_id" value="">
+                <input type="hidden" name="products_action" id="products_action" value="0">
+                <input type="hidden" id="deleteProductIds" name="product_delete_ids[]" value="">
 
                 <div class="form-group">
                     <label>Nama Game</label>
@@ -252,6 +326,22 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
                         <label>Icon (Emoji)</label>
                         <input type="text" name="icon" id="icon" value="🎮" required>
                     </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Kategori</label>
+                        <select name="category" id="category" required>
+                            <option value="RPG">RPG</option>
+                            <option value="MOBA">MOBA</option>
+                            <option value="PC">PC</option>
+                            <option value="Action">Action</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Strategy">Strategy</option>
+                            <option value="Casual">Casual</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group" style="margin:0;">
                         <label>Min. Harga</label>
                         <input type="number" name="min_price" id="min_price" value="5000" required>
@@ -276,7 +366,10 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
                 </div>
 
                 <div class="form-group">
-                    <label><input type="checkbox" name="is_active" id="is_active" checked> Active</label>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" name="is_active" id="is_active" checked>
+                        <label for="is_active">Active</label>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -294,18 +387,93 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
                     <textarea name="faq" id="faq" rows="4" placeholder="Q: ...\nA: ..."></textarea>
                 </div>
 
+                <!-- Section Produk (Nominal/Asset dan Harga) -->
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+                <h3 style="margin-bottom: 15px;">Produk (Nominal & Harga)</h3>
+                
+                <div id="productsContainer">
+                    <!-- Products akan ditambahkan di sini oleh JavaScript -->
+                </div>
+
+                <button type="button" class="btn-secondary" style="margin-bottom: 20px;" onclick="addProductRow()">+ Tambah Nominal</button>
+
                 <button type="submit" class="btn-submit">Simpan</button>
             </form>
         </div>
     </div>
 
     <script>
+        let productRowCounter = 0;
+
+        function addProductRow(id = '', name = '', price = '') {
+            const container = document.getElementById('productsContainer');
+            const rowId = 'product-row-' + productRowCounter++;
+            
+            const row = document.createElement('div');
+            row.id = rowId;
+            row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;';
+            
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'product_names[]';
+            nameInput.placeholder = 'Contoh: 50 Diamond, 100 Gems, etc';
+            nameInput.value = name;
+            nameInput.style.flex = '1';
+            nameInput.style.padding = '8px';
+            nameInput.style.border = '1px solid #d1d5db';
+            nameInput.style.borderRadius = '6px';
+            
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.name = 'product_prices[]';
+            priceInput.placeholder = 'Harga (Rp)';
+            priceInput.value = price;
+            priceInput.min = '0';
+            priceInput.style.flex = '1';
+            priceInput.style.padding = '8px';
+            priceInput.style.border = '1px solid #d1d5db';
+            priceInput.style.borderRadius = '6px';
+            
+            if (id > 0) {
+                const hiddenId = document.createElement('input');
+                hiddenId.type = 'hidden';
+                hiddenId.name = 'product_ids[]';
+                hiddenId.value = id;
+                row.appendChild(hiddenId);
+            } else {
+                const hiddenId = document.createElement('input');
+                hiddenId.type = 'hidden';
+                hiddenId.name = 'product_ids[]';
+                hiddenId.value = '0';
+                row.appendChild(hiddenId);
+            }
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.textContent = 'Hapus';
+            deleteBtn.style.cssText = 'padding: 8px 12px; background-color: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;';
+            deleteBtn.onclick = function() {
+                if (id > 0) {
+                    const deleteIds = document.getElementById('deleteProductIds');
+                    deleteIds.value += (deleteIds.value ? ',' : '') + id;
+                }
+                row.remove();
+            };
+            
+            row.appendChild(nameInput);
+            row.appendChild(priceInput);
+            row.appendChild(deleteBtn);
+            container.appendChild(row);
+        }
+
         function openAddModal() {
             document.getElementById('modalTitle').textContent = 'Tambah Game';
             document.getElementById('modalAction').value = 'add';
             document.getElementById('game_id').value = '';
+            document.getElementById('products_action').value = '0';
             document.getElementById('name').value = '';
             document.getElementById('icon').value = '🎮';
+            document.getElementById('category').value = 'Other';
             document.getElementById('min_price').value = '5000';
             document.getElementById('color_start').value = '#10b981';
             document.getElementById('color_end').value = '#059669';
@@ -313,6 +481,10 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
             document.getElementById('description').value = '';
             document.getElementById('how_to_topup').value = '';
             document.getElementById('faq').value = '';
+            document.getElementById('productsContainer').innerHTML = '';
+            productRowCounter = 0;
+            addProductRow();
+            addProductRow();
             document.getElementById('gameModal').style.display = 'flex';
         }
 
@@ -320,8 +492,10 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
             document.getElementById('modalTitle').textContent = 'Edit Game';
             document.getElementById('modalAction').value = 'update';
             document.getElementById('game_id').value = game.id;
+            document.getElementById('products_action').value = '1';
             document.getElementById('name').value = game.name || '';
             document.getElementById('icon').value = game.icon || '🎮';
+            document.getElementById('category').value = game.category || 'Other';
             document.getElementById('min_price').value = String(game.min_price || 0);
             document.getElementById('color_start').value = game.color_start || '#10b981';
             document.getElementById('color_end').value = game.color_end || '#059669';
@@ -329,6 +503,20 @@ $games = $pdo->query("SELECT * FROM games ORDER BY name")->fetchAll(PDO::FETCH_A
             document.getElementById('description').value = game.description || '';
             document.getElementById('how_to_topup').value = game.how_to_topup || '';
             document.getElementById('faq').value = game.faq || '';
+            
+            // Clear and load products
+            document.getElementById('productsContainer').innerHTML = '<input type="hidden" id="deleteProductIds" name="product_delete_ids[]" value="">';
+            productRowCounter = 0;
+            
+            if (game.products && game.products.length > 0) {
+                game.products.forEach(product => {
+                    addProductRow(product.id, product.name, product.price);
+                });
+            } else {
+                addProductRow();
+                addProductRow();
+            }
+            
             document.getElementById('gameModal').style.display = 'flex';
         }
 

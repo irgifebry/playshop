@@ -45,7 +45,7 @@ $promos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <span class="promo-badge">HOT DEAL</span>
                         <h2>MEGA SALE 50% OFF!</h2>
                         <p>Top up Mobile Legends & Free Fire</p>
-                        <p class="promo-period">Periode: 21 - 31 Januari 2025</p>
+                        <p class="promo-period">Periode: 1 Januari 2025 - 31 Desember 2026</p>
                         <a href="index.php" class="btn-primary">Top Up Sekarang</a>
                     </div>
                     <div class="banner-graphic">🎮💎</div>

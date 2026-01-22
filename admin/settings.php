@@ -117,14 +117,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="settings-section">
                         <h2>Notifikasi Email (Dummy)</h2>
                         <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Kirim email konfirmasi transaksi
-                            </label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="email_confirm" checked>
+                                <label for="email_confirm">Kirim email konfirmasi transaksi</label>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>
-                                <input type="checkbox" checked> Kirim email promo & newsletter
-                            </label>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="email_promo" checked>
+                                <label for="email_promo">Kirim email promo & newsletter</label>
+                            </div>
                         </div>
                     </div>
 

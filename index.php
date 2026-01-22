@@ -64,16 +64,31 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php if (count($banners) > 0): ?>
     <section class="banner-slider">
         <div class="container">
-            <div class="banner-track">
-                <?php foreach($banners as $b): ?>
-                    <a class="banner-item" href="<?php echo htmlspecialchars($b['link_url'] ?: '#'); ?>" style="text-decoration:none;" <?php echo ($b['link_url'] ?? '') ? '' : 'onclick="return false;"'; ?>>
-                        <img src="<?php echo htmlspecialchars(asset_url($b['image_path'])); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
-                        
-                        <div class="banner-caption">
-                            <span class="banner-title"><?php echo htmlspecialchars($b['title']); ?></span>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+            <div class="carousel-container">
+                <div class="banner-track" id="bannerTrack">
+                    <?php foreach($banners as $index => $b): ?>
+                        <a class="banner-item <?php echo $index === 0 ? 'active' : ''; ?>" href="promo-detail.php?banner_id=<?php echo (int)$b['id']; ?>" style="text-decoration:none;">
+                            <img src="<?php echo htmlspecialchars(asset_url($b['image_path'])); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
+
+                            <div class="banner-caption">
+                                <span class="banner-title"><?php echo htmlspecialchars($b['title']); ?></span>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if (count($banners) > 1): ?>
+                <!-- Navigation buttons -->
+                <button class="carousel-btn carousel-btn-prev" id="prevBtn" aria-label="Previous banner">❮</button>
+                <button class="carousel-btn carousel-btn-next" id="nextBtn" aria-label="Next banner">❯</button>
+
+                <!-- Indicators -->
+                <div class="carousel-indicators" id="indicators">
+                    <?php for($i = 0; $i < count($banners); $i++): ?>
+                        <button class="indicator <?php echo $i === 0 ? 'active' : ''; ?>" data-slide="<?php echo $i; ?>" aria-label="Go to slide <?php echo $i + 1; ?>"></button>
+                    <?php endfor; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
@@ -109,9 +124,26 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h2 class="section-title">Pilih Game Favoritmu</h2>
             <p class="section-subtitle">Top up mudah untuk game-game populer</p>
             
-            <div class="games-grid">
+            <!-- Searchbar -->
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari game...">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="category-filter">
+                <button class="category-btn active" onclick="filterByCategory('all', this)">Semua</button>
+                <button class="category-btn" onclick="filterByCategory('RPG', this)">RPG</button>
+                <button class="category-btn" onclick="filterByCategory('MOBA', this)">MOBA</button>
+                <button class="category-btn" onclick="filterByCategory('PC', this)">PC</button>
+                <button class="category-btn" onclick="filterByCategory('Action', this)">Action</button>
+                <button class="category-btn" onclick="filterByCategory('Sports', this)">Sports</button>
+                <button class="category-btn" onclick="filterByCategory('Strategy', this)">Strategy</button>
+            </div>
+            
+            <div class="games-grid" id="gamesGrid">
                 <?php foreach($games as $game): ?>
-                <div class="game-card" onclick="selectGame(<?php echo $game['id']; ?>, '<?php echo $game['name']; ?>')">
+                <div class="game-card" data-game-id="<?php echo $game['id']; ?>" data-category="<?php echo htmlspecialchars($game['category'] ?? 'Other'); ?>" data-name="<?php echo htmlspecialchars(strtolower($game['name'])); ?>" onclick="selectGame(<?php echo $game['id']; ?>, '<?php echo $game['name']; ?>')">
                     <div class="game-image" style="background: linear-gradient(135deg, <?php echo $game['color_start']; ?>, <?php echo $game['color_end']; ?>);">
                         <?php if (!empty($game['image_path'])): ?>
                             <img class="game-thumb" src="<?php echo htmlspecialchars(asset_url($game['image_path'])); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" />
@@ -121,6 +153,7 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="game-info">
                         <h3 class="game-name"><?php echo $game['name']; ?></h3>
+                        <p class="game-category"><?php echo htmlspecialchars($game['category'] ?? 'Other'); ?></p>
                         <p class="game-price">Mulai dari Rp <?php echo number_format($game['min_price'], 0, ',', '.'); ?></p>
                         <div class="game-actions">
                             <button class="btn-topup">Top Up Sekarang</button>
@@ -142,5 +175,130 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script src="js/script.js"></script>
+    <script>
+        // Carousel functionality
+        let currentSlide = 0;
+        let slideInterval;
+        const bannerCount = <?php echo count($banners); ?>;
+
+        function initCarousel() {
+            if (bannerCount <= 1) return;
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const indicators = document.querySelectorAll('.indicator');
+
+            if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+            if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => goToSlide(index));
+            });
+
+            startAutoPlay();
+        }
+
+        function updateCarousel() {
+            const bannerTrack = document.getElementById('bannerTrack');
+            const indicators = document.querySelectorAll('.indicator');
+            const bannerItems = document.querySelectorAll('.banner-item');
+
+            if (!bannerTrack) return;
+
+            // Update transform
+            bannerTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            // Update active classes
+            bannerItems.forEach((item, index) => {
+                item.classList.toggle('active', index === currentSlide);
+            });
+
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % bannerCount;
+            updateCarousel();
+            resetAutoPlay();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + bannerCount) % bannerCount;
+            updateCarousel();
+            resetAutoPlay();
+        }
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateCarousel();
+            resetAutoPlay();
+        }
+
+        function startAutoPlay() {
+            slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        }
+
+        function resetAutoPlay() {
+            clearInterval(slideInterval);
+            startAutoPlay();
+        }
+
+        // Initialize carousel when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initCarousel);
+
+        // Game filtering functionality
+        let currentCategory = 'all';
+
+        function filterByCategory(category, btn) {
+            currentCategory = category;
+
+            // Update button styles
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            filterGames();
+        }
+
+        function filterGames() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+            let visibleCount = 0;
+
+            gameCards.forEach(card => {
+                const gameName = card.dataset.name;
+                const gameCategory = card.dataset.category;
+
+                const matchesSearch = gameName.includes(searchTerm);
+                const matchesCategory = currentCategory === 'all' || gameCategory === currentCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show "no results" message if needed
+            let noResultsMsg = document.getElementById('noResultsMsg');
+            if (visibleCount === 0) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMsg';
+                    noResultsMsg.style.cssText = 'text-align: center; padding: 40px 20px; color: #6b7280; font-size: 1.1rem;';
+                    noResultsMsg.textContent = 'Game tidak ditemukan';
+                    document.getElementById('gamesGrid').parentNode.appendChild(noResultsMsg);
+                }
+                noResultsMsg.style.display = 'block';
+            } else if (noResultsMsg) {
+                noResultsMsg.style.display = 'none';
+            }
+        }
+
+        // Setup search input listener
+        document.getElementById('searchInput').addEventListener('input', filterGames);
+    </script>
 </body>
 </html>

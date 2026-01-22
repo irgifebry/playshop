@@ -204,7 +204,10 @@ $games = $pdo->query("SELECT id, name FROM games ORDER BY name")->fetchAll(PDO::
                 </div>
 
                 <div class="form-group">
-                    <label><input type="checkbox" name="is_active" id="is_active" checked> Active</label>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" name="is_active" id="is_active" checked>
+                        <label for="is_active">Active</label>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-submit">Simpan</button>

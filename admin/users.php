@@ -53,6 +53,23 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Kelola User | Admin PLAYSHOP.ID</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .sidebar {
+            width: 250px !important;
+            min-width: 250px !important;
+            max-width: 250px !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+
 </head>
 <body>
     <div class="admin-layout">
