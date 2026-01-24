@@ -70,21 +70,17 @@ try {
     <section class="promo-detail-section">
         <div class="container">
             <a href="index.php" class="back-link">&larr; Kembali ke Beranda</a>
-
             <div class="promo-detail-content">
                 <div class="promo-detail-image">
                     <img src="<?php echo htmlspecialchars(asset_url($banner['image_path'])); ?>" alt="<?php echo htmlspecialchars($banner['title']); ?>" />
                 </div>
-
                 <div class="promo-detail-info">
                     <h1 class="promo-title"><?php echo htmlspecialchars($banner['title']); ?></h1>
-                    
-                    <?php if (!empty($banner['description'])): ?>
+                     <?php if (!empty($banner['description'])): ?>
                         <div class="promo-description">
                             <?php echo nl2br(htmlspecialchars($banner['description'])); ?>
                         </div>
                     <?php endif; ?>
-
                     <div class="promo-actions">
                         <a href="index.php#games" class="btn-primary">Top Up Sekarang</a>
                         <a href="index.php" class="btn-secondary">Lihat Game Lain</a>

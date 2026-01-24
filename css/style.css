@@ -1690,6 +1690,72 @@ textarea {
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
 
+.promo-detail-section .container {
+    margin-top: -1.5em;
+    margin-left: 0;
+    background: var(--white);
+    border-radius: 14px;
+    border-width: 14px;
+    border-color: #111827;
+    padding: 1.25rem;
+}
+
+.back-link {
+    color: #ffffff;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: var(--primary);
+    margin-bottom: .2rem;
+    margin-top: .44rem;
+    margin-left: 1rem;
+    padding: 0.4rem .5rem;
+    display: inline-block;
+    border-radius: .5rem;
+
+}
+
+.promo-detail-image {
+    text-align: center;
+}
+
+.promo-detail-image img { 
+    border: 2.5px solid var(--primary-dark);
+    border-radius: 1rem;
+    margin-top: .05rem;
+    margin-left: 0rem;
+    max-width: 30%;
+    max-height: auto;
+}
+
+.promo-detail-info {
+    font-size: 20px;
+    text-align: center;
+    margin-top: .5rem;
+}
+
+.promo-actions {
+    margin-top: .2rem;
+}
+
+.promo-actions .btn-primary {
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+}
+
+.promo-actions .btn-secondary {
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    margin-left: 1rem;
+}
+
 /* ========== ABOUT ========== */
 .about-hero {
     background: linear-gradient(to top, #ffffff 0%, #bdf1e1 10%, #8aeccd 20%, #30d8a3 60%, #19ce95 80%, #059669 100%);
