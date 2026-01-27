@@ -310,6 +310,30 @@
                 // Smooth Scroll logic for Active Links or Anchor links
                 const href = this.getAttribute('href');
                 
+                // SPECIAL CASE: Logout Link Slider Animation
+                if (this.id === 'logoutLink') {
+                    e.preventDefault();
+                    const targetUrl = this.href;
+
+                    // 1. Visually move the indicator to Logout
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    updateIndicator(true);
+
+                    // 2. Save THIS position as the departure point for the next page
+                    setTimeout(() => {
+                        if (navIndicator) {
+                            const style = window.getComputedStyle(navIndicator);
+                            sessionStorage.setItem('navIndicatorLeft', style.left);
+                            sessionStorage.setItem('navIndicatorWidth', style.width);
+                        }
+                        
+                        // 3. Navigate
+                        window.location.href = targetUrl;
+                    }, 300); // Wait for slide animation to finish
+                    return;
+                }
+
                 if (href.includes('#')) {
                     const targetId = href.split('#')[1];
                     const targetEl = document.getElementById(targetId);
