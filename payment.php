@@ -11,6 +11,12 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Ensure user is logged in
+if(!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 $game_id = $_POST['game_id'];
 $game_name = $_POST['game_name'];
 $game_user_id = $_POST['user_id'];      // user id in game
@@ -78,22 +84,17 @@ $_SESSION['order_id'] = $order_id;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pembayaran | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <span class="logo-icon">🎮</span>
-                    <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+
 
     <section class="payment-section">
         <div class="container">
+            <h1 class="page-title">🔐 Selesaikan Pembayaran Anda</h1>
+            <p class="page-subtitle">Silakan selesaikan pembayaran sesuai metode yang Anda pilih</p>
+
             <div class="progress-steps">
                 <div class="step completed">
                     <div class="step-number">✓</div>
@@ -113,61 +114,61 @@ $_SESSION['order_id'] = $order_id;
 
             <div class="payment-container">
                 <div class="payment-info">
-                    <h2>🔐 Halaman Pembayaran Dummy</h2>
-                    <p class="payment-note">Ini adalah simulasi pembayaran. Tidak ada transaksi nyata yang dilakukan.</p>
                     
                     <div class="payment-details">
                         <h3>Detail Pesanan</h3>
-                        <table class="detail-table">
-                            <tr>
-                                <td>Order ID</td>
-                                <td><strong><?php echo $order_id; ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td>Game</td>
-                                <td><?php echo $game_name; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Produk</td>
-                                <td><?php echo $product['name']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>User ID</td>
-                                <td><?php echo $game_user_id; ?><?php echo $game_zone_id ? " ($game_zone_id)" : ''; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Metode Pembayaran</td>
-                                <td><?php echo $payment_method; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Subtotal</td>
-                                <td>Rp <?php echo number_format($subtotal, 0, ',', '.'); ?></td>
-                            </tr>
-                            <tr>
-                                <td>Diskon</td>
-                                <td>
-                                    <?php if($discount > 0): ?>
-                                        <strong>- Rp <?php echo number_format($discount, 0, ',', '.'); ?></strong>
-                                        <?php if(!empty($voucher['code'])): ?>
-                                            <div style="font-size: 0.9rem; color: #6b7280;">Kode: <?php echo htmlspecialchars($voucher['code']); ?></div>
+                        <div class="table-responsive">
+                            <table class="detail-table">
+                                <tr>
+                                    <td>Order ID</td>
+                                    <td><strong><?php echo $order_id; ?></strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Game</td>
+                                    <td><?php echo $game_name; ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Produk</td>
+                                    <td><?php echo $product['name']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td>User ID</td>
+                                    <td><?php echo $game_user_id; ?><?php echo $game_zone_id ? " ($game_zone_id)" : ''; ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Metode Pembayaran</td>
+                                    <td><?php echo $payment_method; ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Subtotal</td>
+                                    <td>Rp <?php echo number_format($subtotal, 0, ',', '.'); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Diskon</td>
+                                    <td>
+                                        <?php if($discount > 0): ?>
+                                            <strong>- Rp <?php echo number_format($discount, 0, ',', '.'); ?></strong>
+                                            <?php if(!empty($voucher['code'])): ?>
+                                                <div style="font-size: 0.9rem; color: #6b7280;">Kode: <?php echo htmlspecialchars($voucher['code']); ?></div>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            Rp 0
+                                            <?php if(!empty($voucher_code) && !($voucher['ok'] ?? false)): ?>
+                                                <div style="font-size: 0.9rem; color: #991b1b;"><?php echo htmlspecialchars($voucher['message'] ?? 'Voucher tidak valid'); ?></div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
-                                    <?php else: ?>
-                                        Rp 0
-                                        <?php if(!empty($voucher_code) && !($voucher['ok'] ?? false)): ?>
-                                            <div style="font-size: 0.9rem; color: #991b1b;"><?php echo htmlspecialchars($voucher['message'] ?? 'Voucher tidak valid'); ?></div>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Biaya Admin</td>
-                                <td>Rp <?php echo number_format($admin_fee, 0, ',', '.'); ?></td>
-                            </tr>
-                            <tr class="total-row">
-                                <td>Total Bayar</td>
-                                <td><strong>Rp <?php echo number_format($total, 0, ',', '.'); ?></strong></td>
-                            </tr>
-                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Biaya Admin</td>
+                                    <td>Rp <?php echo number_format($admin_fee, 0, ',', '.'); ?></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total Bayar</td>
+                                    <td><strong>Rp <?php echo number_format($total, 0, ',', '.'); ?></strong></td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
 
                     <div class="payment-simulation">
@@ -213,5 +214,7 @@ $_SESSION['order_id'] = $order_id;
             }
         }, 1000);
     </script>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+

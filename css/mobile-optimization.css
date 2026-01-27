@@ -1,0 +1,121 @@
+/* ========== GLOBAL MOBILE OPTIMIZATION ========== */
+/* Standardizing layout across ALL pages for consistent mobile experience */
+
+@media (max-width: 768px) {
+
+    /* 1. Typography Scaling */
+    h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.3 !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    h3 {
+        font-size: 1.25rem !important;
+    }
+
+    p {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+    }
+
+    /* 2. Container Standardisation */
+    .container,
+    .payment-container,
+    .success-container,
+    .login-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 3. Section Spacing Standardisation */
+    section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* Ensure content is not hidden behind fixed header */
+    body>section:first-of-type,
+    main>section:first-of-type {
+        padding-top: 90px !important;
+    }
+
+    /* 4. Form Elements Full Width */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea,
+    .btn-topup,
+    .btn-confirm,
+    .btn-submit,
+    .btn-checkout {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 16px !important;
+        display: block !important;
+    }
+
+    /* 5. Grid Collapsing (Force 1 Column) */
+    .grid-2-col,
+    .grid-3-col,
+    .grid-4-col {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+
+    @media (max-width: 480px) {
+        .games-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* Exception for small items like product nominals */
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Payment Stats / Info Boxes */
+    .stat-card,
+    .info-box {
+        margin-bottom: 1rem !important;
+    }
+
+    /* 6. Admin Table Horizontal Scroll */
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 8px !important;
+        border: 1px solid #e5e7eb !important;
+    }
+
+    table {
+        min-width: 600px !important;
+        /* Force scroll for tables */
+    }
+
+    /* 7. Modal Full Width */
+    .modal-content {
+        width: 95% !important;
+        margin: 10% auto !important;
+        padding: 1.5rem !important;
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+    }
+}

@@ -30,36 +30,14 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLAYSHOP.ID - Top Up Game Cepat & Murah</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header -->
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <span class="logo-icon">🎮</span>
-                    <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php" class="active">Home</a></li>
-                    <li><a href="#games">Games</a></li>
-                    <li><a href="promo.php">Promo</a></li>
-                    <li><a href="check-order.php">Cek Order</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                    <li><a href="contact.php">Kontak</a></li>
-                    <li><a href="about.php">Tentang</a></li>
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <li><a href="profile.php">Profil</a></li>
-                        <li><a href="logout.php">Logout</a></li>
-                    <?php else: ?>
-                        <li><a href="login.php">Login</a></li>
-                    <?php endif; ?>
-                    <li><a href="admin/login.php">Admin</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include 'includes/header.php'; ?>
+
+
 
     <?php if (count($banners) > 0): ?>
     <section class="banner-slider">
@@ -71,7 +49,10 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <img src="<?php echo htmlspecialchars(asset_url($b['image_path'])); ?>" alt="<?php echo htmlspecialchars($b['title']); ?>" />
 
                             <div class="banner-caption">
-                                <span class="banner-title"><?php echo htmlspecialchars($b['title']); ?></span>
+                                <h2 class="banner-title"><?php echo htmlspecialchars($b['title']); ?></h2>
+                                <?php if(!empty($b['description'])): ?>
+                                    <p class="banner-description"><?php echo htmlspecialchars($b['description']); ?></p>
+                                <?php endif; ?>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -79,8 +60,12 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <?php if (count($banners) > 1): ?>
                 <!-- Navigation buttons -->
-                <button class="carousel-btn carousel-btn-prev" id="prevBtn" aria-label="Previous banner">❮</button>
-                <button class="carousel-btn carousel-btn-next" id="nextBtn" aria-label="Next banner">❯</button>
+                <button class="carousel-btn carousel-btn-prev" id="prevBtn" aria-label="Previous banner">
+                    <span style="transform: translateX(-2px);">❮</span>
+                </button>
+                <button class="carousel-btn carousel-btn-next" id="nextBtn" aria-label="Next banner">
+                    <span style="transform: translateX(2px);">❯</span>
+                </button>
 
                 <!-- Indicators -->
                 <div class="carousel-indicators" id="indicators">
@@ -143,7 +128,7 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="games-grid" id="gamesGrid">
                 <?php foreach($games as $game): ?>
-                <div class="game-card" data-game-id="<?php echo $game['id']; ?>" data-category="<?php echo htmlspecialchars($game['category'] ?? 'Other'); ?>" data-name="<?php echo htmlspecialchars(strtolower($game['name'])); ?>" onclick="selectGame(<?php echo $game['id']; ?>, '<?php echo $game['name']; ?>')">
+                <div class="game-card" data-game-id="<?php echo $game['id']; ?>" data-category="<?php echo htmlspecialchars($game['category'] ?? 'Other'); ?>" data-name="<?php echo htmlspecialchars(strtolower($game['name'])); ?>" onclick="window.location.href='checkout.php?game_id=<?php echo (int)$game['id']; ?>'">
                     <div class="game-image" style="background: linear-gradient(135deg, <?php echo $game['color_start']; ?>, <?php echo $game['color_end']; ?>);">
                         <?php if (!empty($game['image_path'])): ?>
                             <img class="game-thumb" src="<?php echo htmlspecialchars(asset_url($game['image_path'])); ?>" alt="<?php echo htmlspecialchars($game['name']); ?>" />
@@ -156,7 +141,7 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p class="game-category"><?php echo htmlspecialchars($game['category'] ?? 'Other'); ?></p>
                         <p class="game-price">Mulai dari Rp <?php echo number_format($game['min_price'], 0, ',', '.'); ?></p>
                         <div class="game-actions">
-                            <button class="btn-topup">Top Up Sekarang</button>
+                            <a href="checkout.php?game_id=<?php echo (int)$game['id']; ?>" class="btn-topup" style="text-decoration:none; text-align:center;">Top Up Sekarang</a>
                             <a class="btn-secondary btn-small" href="game-detail.php?game_id=<?php echo (int)$game['id']; ?>" onclick="event.stopPropagation();">Detail</a>
                         </div>
                     </div>
@@ -166,15 +151,17 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- Quick Career Callout (Example of Solution 3: Cross-linking) -->
+    <section class="career-callout" style="padding: 3rem 0; background: var(--bg); text-align: center;">
         <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-            <p>Platform Top Up Game Terpercaya di Indonesia</p>
+            <h3>Ingin menjadi bagian dari kami?</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-light);">Cek peluang karier terbaru di PLAYSHOP.ID</p>
+            <a href="career.php" class="btn-secondary" style="padding: 0.8rem 2rem;">Lihat Karier</a>
         </div>
-    </footer>
+    </section>
 
-    <script src="js/script.js"></script>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+
     <script>
         // Carousel functionality
         let currentSlide = 0;
@@ -298,7 +285,8 @@ $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         // Setup search input listener
-        document.getElementById('searchInput').addEventListener('input', filterGames);
+        const searchInput = document.getElementById('searchInput');
+        if(searchInput) searchInput.addEventListener('input', filterGames);
     </script>
 </body>
 </html>

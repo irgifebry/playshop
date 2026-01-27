@@ -22,6 +22,9 @@ if(!$game) {
 $stmt = $pdo->prepare("SELECT * FROM products WHERE game_id = ? AND is_active = 1 ORDER BY price");
 $stmt->execute([$game_id]);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Ambil metode pembayaran aktif
+$payment_methods = $pdo->query("SELECT * FROM payment_methods WHERE is_active = 1 ORDER BY type, name")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -30,24 +33,19 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - <?php echo $game['name']; ?> | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
+
 
     <section class="checkout-section">
         <div class="container">
+            <h1 class="page-title">🎮 Top Up Game</h1>
+            <p class="page-subtitle">Pilih produk dan masukkan data akun Anda</p>
+
             <!-- Progress Steps -->
             <div class="progress-steps">
                 <div class="step active">
@@ -67,6 +65,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="checkout-container">
+
                 <!-- Game Info -->
                 <div class="checkout-header">
                     <div class="game-banner" style="background: linear-gradient(135deg, <?php echo $game['color_start']; ?>, <?php echo $game['color_end']; ?>);">
@@ -116,34 +115,19 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="form-section">
                         <h3>3. Pilih Metode Pembayaran</h3>
                         <div class="payment-methods">
+                            <?php foreach($payment_methods as $pm): ?>
                             <label class="payment-option">
-                                <input type="radio" name="payment_method" value="DANA" required>
+                                <input type="radio" name="payment_method" value="<?php echo htmlspecialchars($pm['code']); ?>" data-fee-flat="<?php echo $pm['fee_flat']; ?>" data-fee-percent="<?php echo $pm['fee_percent']; ?>" required>
                                 <div class="payment-card">
-                                    <span class="payment-icon">💳</span>
-                                    <span class="payment-name">DANA</span>
+                                    <?php if($pm['image_path']): ?>
+                                        <img src="<?php echo asset_url($pm['image_path']); ?>" alt="<?php echo $pm['name']; ?>" style="height:24px; margin-right:8px;">
+                                    <?php else: ?>
+                                        <span class="payment-icon"><?php echo ($pm['type'] === 'Bank Transfer') ? '🏦' : '💳'; ?></span>
+                                    <?php endif; ?>
+                                    <span class="payment-name"><?php echo htmlspecialchars($pm['name']); ?></span>
                                 </div>
                             </label>
-                            <label class="payment-option">
-                                <input type="radio" name="payment_method" value="OVO" required>
-                                <div class="payment-card">
-                                    <span class="payment-icon">💳</span>
-                                    <span class="payment-name">OVO</span>
-                                </div>
-                            </label>
-                            <label class="payment-option">
-                                <input type="radio" name="payment_method" value="GoPay" required>
-                                <div class="payment-card">
-                                    <span class="payment-icon">💳</span>
-                                    <span class="payment-name">GoPay</span>
-                                </div>
-                            </label>
-                            <label class="payment-option">
-                                <input type="radio" name="payment_method" value="Bank Transfer" required>
-                                <div class="payment-card">
-                                    <span class="payment-icon">🏦</span>
-                                    <span class="payment-name">Bank Transfer</span>
-                                </div>
-                            </label>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -183,12 +167,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-checkout">BAYAR SEKARANG</button>
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                        <button type="submit" class="btn-checkout">BAYAR SEKARANG</button>
+                    <?php else: ?>
+                        <a href="login.php" class="btn-checkout" style="display: block; text-align: center; text-decoration: none; background: var(--secondary);">LOGIN UNTUK TOP UP</a>
+                        <p style="text-align: center; color: #ef4444; font-size: 0.85rem; margin-top: 10px; font-weight: 600; animation: fadeInUp 0.5s;">⚠️ Anda harus login untuk melanjutkan transaksi</p>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
     </section>
 
-    <script src="js/script.js"></script>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+

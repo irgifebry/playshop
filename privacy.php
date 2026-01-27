@@ -6,127 +6,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kebijakan Privasi | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="privacy.php" class="active">Privasi</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
 
-    <section class="legal-section">
+
+    <section class="legal-header">
         <div class="container">
-            <h1 class="page-title">Kebijakan Privasi & Syarat Ketentuan</h1>
-            <p class="legal-date">Terakhir diperbarui: 21 Januari 2025</p>
+            <span class="legal-badge">Pusat Informasi</span>
+            <h1>Kebijakan Privasi</h1>
+            <p>Terakhir diperbarui: 21 Januari 2026</p>
+        </div>
+    </section>
 
-            <div class="legal-content">
+    <div class="container">
+        <div class="legal-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="legal-sidebar">
+                <nav class="legal-nav">
+                    <a href="privacy.php" class="legal-nav-item active">Kebijakan Privasi</a>
+                    <a href="partnership.php" class="legal-nav-item">Partnership</a>
+                    <a href="about.php" class="legal-nav-item">Tentang Kami</a>
+                    <a href="career.php" class="legal-nav-item">Karier</a>
+                    <a href="blog.php" class="legal-nav-item">Blog</a>
+                    <a href="contact.php" class="legal-nav-item">Kontak</a>
+                    <a href="faq.php" class="legal-nav-item">FAQ</a>
+                    <a href="testimonials.php" class="legal-nav-item">Testimoni</a>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="legal-content">
                 <div class="legal-block">
                     <h2>1. Kebijakan Privasi</h2>
+                    <p>Di PLAYSHOP.ID, kami sangat menghargai privasi Anda. Kebijakan ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan platform kami.</p>
                     
                     <h3>1.1 Informasi yang Kami Kumpulkan</h3>
                     <p>Kami mengumpulkan informasi berikut saat Anda menggunakan layanan kami:</p>
                     <ul>
-                        <li>Informasi pribadi (nama, email, nomor telepon)</li>
-                        <li>Informasi transaksi (User ID game, metode pembayaran)</li>
-                        <li>Informasi teknis (IP address, browser, device)</li>
-                        <li>Riwayat pembelian dan aktivitas di website</li>
+                        <li><strong>Identitas Pribadi:</strong> Nama, email, dan nomor telepon yang Anda berikan saat pendaftaran.</li>
+                        <li><strong>Data Transaksi:</strong> User ID game, Zone ID, item yang dibeli, dan metode pembayaran yang dipilih.</li>
+                        <li><strong>Data Teknis:</strong> Alamat IP, jenis peramban (browser), perangkat yang digunakan, dan waktu akses.</li>
+                        <li><strong>Aktivitas:</strong> Riwayat pembelian dan interaksi Anda dengan fitur-fitur di website kami.</li>
                     </ul>
 
                     <h3>1.2 Penggunaan Informasi</h3>
-                    <p>Informasi yang kami kumpulkan digunakan untuk:</p>
+                    <p>Informasi yang kami kumpulkan digunakan secara eksklusif untuk:</p>
                     <ul>
-                        <li>Memproses transaksi top up Anda</li>
-                        <li>Mengirim konfirmasi dan notifikasi transaksi</li>
-                        <li>Memberikan dukungan pelanggan</li>
-                        <li>Meningkatkan kualitas layanan kami</li>
-                        <li>Mencegah penipuan dan aktivitas ilegal</li>
+                        <li>Memproses transaksi top up dan pengiriman item game Anda secara instan.</li>
+                        <li>Mengirimkan notifikasi status pesanan dan bukti transaksi ke email/nomor Anda.</li>
+                        <li>Memberikan dukungan teknis jika Anda mengalami kendala saat bertransaksi.</li>
+                        <li>Meningkatkan pengalaman pengguna berdasarkan data perilaku anonim.</li>
+                        <li>Mencegah aktivitas ilegal, penipuan, atau penyalahgunaan platform.</li>
                     </ul>
 
                     <h3>1.3 Keamanan Data</h3>
-                    <p>Kami menggunakan teknologi enkripsi SSL dan sistem keamanan berlapis untuk melindungi data Anda. Kami tidak menyimpan informasi kartu kredit atau password dalam bentuk plain text.</p>
+                    <p>Kami menerapkan standar keamanan industri tinggi, termasuk enkripsi SSL (Secure Socket Layer) 256-bit untuk memastikan data Anda aman selama transmisi. Kami berkomitmen untuk tidak menyimpan informasi kartu kredit atau kata sandi Anda dalam bentuk teks yang dapat dibaca.</p>
 
                     <h3>1.4 Berbagi Informasi</h3>
-                    <p>Kami tidak akan menjual, menyewakan, atau membagikan informasi pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali:</p>
-                    <ul>
-                        <li>Untuk memproses pembayaran (payment gateway)</li>
-                        <li>Jika diwajibkan oleh hukum</li>
-                        <li>Untuk melindungi hak dan keamanan kami</li>
-                    </ul>
+                    <p>Kami tidak akan pernah menjual atau menyewakan informasi pribadi Anda kepada pihak ketiga. Informasi hanya dibagikan kepada mitra pemrosesan pembayaran (payment gateway) resmi atau jika diwajibkan secara hukum oleh otoritas yang berwenang.</p>
                 </div>
 
-                <div class="legal-block">
+                <div class="legal-block" id="terms">
                     <h2>2. Syarat dan Ketentuan</h2>
+                    <p>Dengan mengakses PLAYSHOP.ID, Anda secara otomatis menyetujui seluruh syarat dan ketentuan yang berlaku di bawah ini.</p>
                     
-                    <h3>2.1 Penggunaan Layanan</h3>
-                    <p>Dengan menggunakan PLAYSHOP.ID, Anda setuju untuk:</p>
+                    <h3>2.1 Tanggung Jawab Pengguna</h3>
+                    <p>Sebagai pengguna, Anda bertanggung jawab penuh atas:</p>
                     <ul>
-                        <li>Memberikan informasi yang akurat dan lengkap</li>
-                        <li>Menggunakan layanan hanya untuk keperluan yang sah</li>
-                        <li>Tidak melakukan aktivitas penipuan atau ilegal</li>
-                        <li>Bertanggung jawab atas keamanan akun Anda</li>
+                        <li>Keakuratan User ID dan Zone ID game yang dimasukkan saat checkout.</li>
+                        <li>Keamanan akun PLAYSHOP.ID dan data login Anda.</li>
+                        <li>Segala aktivitas yang terjadi melalui akun Anda.</li>
                     </ul>
 
-                    <h3>2.2 Transaksi</h3>
+                    <h3>2.2 Transaksi & Pembayaran</h3>
                     <ul>
-                        <li>Semua transaksi bersifat final dan tidak dapat dibatalkan</li>
-                        <li>Pastikan User ID yang dimasukkan benar sebelum pembayaran</li>
-                        <li>Proses top up biasanya 1-5 menit, maksimal 24 jam</li>
-                        <li>Kami tidak bertanggung jawab atas kesalahan User ID yang Anda input</li>
+                        <li>Seluruh transaksi yang telah statusnya "Berhasil" bersifat final dan tidak dapat dibatalkan (Non-refundable).</li>
+                        <li>Ketersediaan produk dan harga dapat berubah sewaktu-waktu sesuai kebijakan publisher game tanpa pemberitahuan sebelumnya.</li>
+                        <li>Proses pengiriman Diamond/UC biasanya memakan waktu 1-5 menit sejak pembayaran dikonfirmasi.</li>
                     </ul>
 
-                    <h3>2.3 Refund dan Pengembalian</h3>
-                    <ul>
-                        <li>Refund hanya diberikan jika terjadi kesalahan sistem dari pihak kami</li>
-                        <li>Refund akan diproses maksimal 7 hari kerja</li>
-                        <li>Tidak ada refund untuk kesalahan User ID dari pelanggan</li>
-                    </ul>
-
-                    <h3>2.4 Harga dan Pembayaran</h3>
-                    <ul>
-                        <li>Harga yang tertera sudah termasuk PPN</li>
-                        <li>Biaya admin mungkin berbeda tergantung metode pembayaran</li>
-                        <li>Kami berhak mengubah harga sewaktu-waktu tanpa pemberitahuan</li>
-                    </ul>
-
-                    <h3>2.5 Penangguhan dan Pemutusan</h3>
-                    <p>Kami berhak menangguhkan atau menghentikan akses Anda jika:</p>
-                    <ul>
-                        <li>Melanggar syarat dan ketentuan</li>
-                        <li>Melakukan aktivitas penipuan</li>
-                        <li>Menyalahgunakan layanan</li>
-                    </ul>
+                    <h3 id="refund">2.3 Refund (Pengembalian Dana)</h3>
+                    <p>Pengembalian dana hanya dipertimbangkan jika terjadi kegagalan sistem pada pihak PLAYSHOP.ID yang menyebabkan item gagal terkirim. Refund tidak berlaku bagi kesalahan input data oleh pengguna.</p>
                 </div>
 
                 <div class="legal-block">
-                    <h2>3. Kontak</h2>
-                    <p>Jika Anda memiliki pertanyaan tentang Kebijakan Privasi atau Syarat Ketentuan ini, silakan hubungi kami:</p>
+                    <h2>3. Hubungi Kami</h2>
+                    <p>Jika Anda memiliki pertanyaan mendalam mengenai kebijakan privasi atau ingin mengajukan keluhan terkait penggunaan data, tim legal kami siap membantu.</p>
                     <ul>
-                        <li>Email: legal@playshop.id</li>
-                        <li>WhatsApp: +62 812-3456-7890</li>
-                        <li>Website: www.playshop.id/contact</li>
+                        <li><strong>Email Legal:</strong> legal@playshop.id</li>
+                        <li><strong>WhatsApp:</strong> +62 812-3456-7890</li>
+                        <li><strong>Jam Operasional:</strong> 09:00 - 21:00 WIB</li>
                     </ul>
                 </div>
-            </div>
+            </main>
         </div>
-    </section>
+    </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-            <p><a href="privacy.php" style="color: #10b981;">Privacy Policy</a> | <a href="privacy.php" style="color: #10b981;">Terms of Service</a></p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+

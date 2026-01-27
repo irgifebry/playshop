@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS contacts (
 CREATE TABLE IF NOT EXISTS banners (
   id INT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(160) NOT NULL,
+  description TEXT NULL,
   image_path VARCHAR(255) NOT NULL,
   link_url VARCHAR(255) NULL,
   sort_order INT NOT NULL DEFAULT 0,
@@ -153,38 +154,6 @@ CREATE TABLE IF NOT EXISTS settings (
   setting_key VARCHAR(120) NOT NULL UNIQUE,
   setting_value TEXT NOT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- =============================
--- NOTIFICATIONS (optional / future)
--- =============================
-CREATE TABLE IF NOT EXISTS notifications (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  channel ENUM('email','whatsapp','inapp') DEFAULT 'inapp',
-  title VARCHAR(200) NOT NULL,
-  message TEXT NOT NULL,
-  meta_json JSON NULL,
-  is_read TINYINT(1) DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id)
-    ON DELETE CASCADE
-);
-
--- =============================
--- REVIEWS (optional / future)
--- =============================
-CREATE TABLE IF NOT EXISTS reviews (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  transaction_id INT NOT NULL,
-  rating TINYINT NOT NULL,
-  comment TEXT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_reviews_transaction FOREIGN KEY (transaction_id) REFERENCES transactions(id)
-    ON DELETE CASCADE
 );
 
 -- =============================

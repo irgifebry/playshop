@@ -40,36 +40,20 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Akun | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="promo.php">Promo</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                    <li><a href="contact.php">Kontak</a></li>
-                    <li><a href="register.php" class="active">Daftar</a></li>
-                    <li><a href="login.php">Login</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <!-- Header -->
+    <?php include "includes/header.php"; ?>
 
-    <section class="checkout-section">
-        <div class="container">
-            <div class="checkout-container" style="max-width: 620px;">
-                <div class="content-header" style="margin-bottom: 1rem;">
-                    <h1 style="margin:0;">Daftar Akun</h1>
-                    <p style="margin: 6px 0 0; color: #6b7280;">Buat akun untuk akses promo, riwayat, dan notifikasi dummy.</p>
+    <main class="auth-page">
+        <div class="login-container" style="max-width: 420px;">
+            <div class="login-box">
+                <div class="login-header">
+                    <a href="index.php" style="text-decoration: none; color: inherit;">
+                        <h2 style="font-size: 1.5rem;">Daftar Akun</h2>
+                        <p style="font-size: 0.85rem;">Bergabung dengan <strong>PLAYSHOP.ID</strong></p>
+                    </a>
                 </div>
 
                 <?php if($success): ?>
@@ -81,39 +65,50 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST">
-                    <div class="form-section">
-                        <h3>Data Akun</h3>
-                        <div class="form-row">
-                            <input type="text" name="name" placeholder="Nama lengkap" required>
-                            <input type="text" name="phone" placeholder="No. WhatsApp (08xxxxxxxxxx)" required>
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" name="name" placeholder="Contoh: Budi Santoso" required>
+                    </div>
+                    
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.2rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="budi@email.com" required>
                         </div>
-                        <div class="form-row" style="margin-top: 10px; grid-template-columns: 1fr;">
-                            <input type="email" name="email" placeholder="email@example.com" required>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>WhatsApp</label>
+                            <input type="text" name="phone" placeholder="0812..." required>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Password</h3>
-                        <div class="form-row" style="grid-template-columns: 1fr;">
-                            <input type="password" name="password" placeholder="Minimal 6 karakter" minlength="6" required>
-                        </div>
-                        <p class="form-hint">🔒 Password akan disimpan dalam bentuk hash (tidak plain text).</p>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Minimal 6 karakter" minlength="6" required>
+                        <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 5px;">🔒 Aman & Terenkripsi</p>
                     </div>
 
-                    <button type="submit" class="btn-checkout">DAFTAR SEKARANG</button>
+                    <button type="submit" class="btn-login" style="margin-top: 10px;">DAFTAR SEKARANG</button>
                 </form>
 
-                <div style="margin-top: 1.25rem;">
-                    <a href="login.php" style="color: var(--primary); font-weight: 700; text-decoration: none;">Sudah punya akun? Login</a>
+                <div class="login-footer">
+                    <p style="margin-bottom: 8px;">Sudah punya akun? <a href="login.php" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Disini</a></p>
+                    <a href="index.php" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem;">← Kembali ke Beranda</a>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+</body>
+
+    <style>
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </body>
 </html>
+
+

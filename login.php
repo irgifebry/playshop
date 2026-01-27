@@ -40,38 +40,20 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="promo.php">Promo</a></li>
-                    <li><a href="check-order.php">Cek Order</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                    <li><a href="contact.php">Kontak</a></li>
-                    <li><a href="about.php">Tentang</a></li>
-                    <li><a href="login.php" class="active">Login</a></li>
-                    <li><a href="admin/login.php">Admin</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <!-- Header -->
+    <?php include "includes/header.php"; ?>
 
-    <section class="checkout-section">
-        <div class="container">
-            <div class="checkout-container" style="max-width: 520px;">
-                <div class="content-header" style="margin-bottom: 1rem;">
-                    <h1 style="margin:0;">Login</h1>
-                    <p style="margin: 6px 0 0; color: #6b7280;">Masuk untuk melihat profil & riwayat transaksi.</p>
+    <main class="auth-page">
+        <div class="login-container">
+            <div class="login-box">
+                <div class="login-header">
+                    <a href="index.php" style="text-decoration: none; color: inherit;">
+                        <h2 style="font-size: 1.5rem;">Selamat Datang</h2>
+                        <p style="font-size: 0.85rem;">Masuk ke akun <strong>PLAYSHOP.ID</strong> Anda</p>
+                    </a>
                 </div>
 
                 <?php if($error): ?>
@@ -79,35 +61,29 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST">
-                    <div class="form-section">
-                        <h3>Email</h3>
-                        <div class="form-row" style="grid-template-columns: 1fr;">
-                            <input type="email" name="email" placeholder="email@example.com" required>
-                        </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="nama@email.com" required>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Password</h3>
-                        <div class="form-row" style="grid-template-columns: 1fr;">
-                            <input type="password" name="password" placeholder="Masukkan password" required>
-                        </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Masukkan password" required>
                     </div>
 
-                    <button type="submit" class="btn-checkout">LOGIN</button>
+                    <button type="submit" class="btn-login" style="margin-top: 10px;">MASUK</button>
                 </form>
 
-                <div style="margin-top: 1.25rem; display:flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                    <a href="register.php" style="color: var(--primary); font-weight: 700; text-decoration: none;">Belum punya akun? Daftar</a>
-                    <a href="index.php" style="color: #6b7280; text-decoration: none;">Lanjut tanpa login</a>
+                <div class="login-footer">
+                    <p style="margin-bottom: 8px;">Belum punya akun? <a href="register.php" style="color: var(--primary); font-weight: 700; text-decoration: none;">Daftar Sekarang</a></p>
+                    <a href="index.php" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem;">Lanjut ke Beranda →</a>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+
+

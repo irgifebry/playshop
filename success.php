@@ -63,22 +63,18 @@ if ($toEmail) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pembayaran Berhasil | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <span class="logo-icon">🎮</span>
-                    <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
+
 
     <section class="success-section">
         <div class="container">
+            <h1 class="page-title">✅ Transaksi Berhasil</h1>
+            <p class="page-subtitle">Terima kasih telah melakukan top up di PLAYSHOP.ID</p>
+
             <div class="progress-steps">
                 <div class="step completed">
                     <div class="step-number">✓</div>
@@ -95,6 +91,7 @@ if ($toEmail) {
                     <div class="step-label">Selesai</div>
                 </div>
             </div>
+
 
             <div class="success-container">
                 <div class="success-icon">✅</div>
@@ -144,6 +141,7 @@ if ($toEmail) {
         </div>
     </section>
 
+    <?php include __DIR__ . '/includes/footer.php'; ?>
     <script>
         // Auto confetti effect
         setTimeout(() => {
@@ -164,3 +162,4 @@ if ($toEmail) {
     </script>
 </body>
 </html>
+

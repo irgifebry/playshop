@@ -57,12 +57,14 @@ if (($_GET['export'] ?? '') === 'csv') {
 // Get transaction summary
 $stmt = $pdo->prepare("SELECT 
                        COUNT(*) as total_transactions,
-                       SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as success_count,
-                       SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count,
-                       SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_count,
-                       SUM(CASE WHEN status = 'success' THEN amount ELSE 0 END) as total_revenue
-                       FROM transactions 
-                       WHERE DATE(created_at) BETWEEN ? AND ?");
+                       SUM(CASE WHEN t.status = 'success' THEN 1 ELSE 0 END) as success_count,
+                       SUM(CASE WHEN t.status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+                       SUM(CASE WHEN t.status = 'failed' THEN 1 ELSE 0 END) as failed_count,
+                       SUM(CASE WHEN t.status = 'success' THEN t.amount ELSE 0 END) as total_revenue,
+                       SUM(CASE WHEN t.status = 'success' THEN (t.amount - p.purchase_price) ELSE 0 END) as total_profit
+                       FROM transactions t
+                       JOIN products p ON t.product_id = p.id
+                       WHERE DATE(t.created_at) BETWEEN ? AND ?");
 $stmt->execute([$start_date, $end_date]);
 $summary = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -83,7 +85,8 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan | Admin PLAYSHOP.ID</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="admin-layout">
@@ -144,6 +147,14 @@ $by_game = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="stat-info">
                         <h3>Rp <?php echo number_format((int)($summary['total_revenue'] ?? 0), 0, ',', '.'); ?></h3>
                         <p>Total Pendapatan</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-info">
+                        <h3>Rp <?php echo number_format((int)($summary['total_profit'] ?? 0), 0, ',', '.'); ?></h3>
+                        <p>Total Profit (Bersih)</p>
                         </div>
                     </div>
                 </div>

@@ -35,69 +35,46 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($banner['title']); ?> | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header -->
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <span class="logo-icon">🎮</span>
-                    <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="index.php#games">Games</a></li>
-                    <li><a href="promo.php" class="active">Promo</a></li>
-                    <li><a href="check-order.php">Cek Order</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                    <li><a href="contact.php">Kontak</a></li>
-                    <li><a href="about.php">Tentang</a></li>
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <li><a href="profile.php">Profil</a></li>
-                        <li><a href="logout.php">Logout</a></li>
-                    <?php else: ?>
-                        <li><a href="login.php">Login</a></li>
-                    <?php endif; ?>
-                    <li><a href="admin/login.php">Admin</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
 
     <!-- Promo Detail Section -->
-    <section class="promo-detail-section">
+    <main class="promo-detail-section">
         <div class="container">
-            <a href="index.php" class="back-link">&larr; Kembali ke Beranda</a>
-            <div class="promo-detail-content">
-                <div class="promo-detail-image">
+            <a href="index.php" class="btn-back-home">&larr; Kembali ke Beranda</a>
+            
+            <article class="promo-detail-card">
+                <div class="promo-detail-banner">
                     <img src="<?php echo htmlspecialchars(asset_url($banner['image_path'])); ?>" alt="<?php echo htmlspecialchars($banner['title']); ?>" />
                 </div>
-                <div class="promo-detail-info">
-                    <h1 class="promo-title"><?php echo htmlspecialchars($banner['title']); ?></h1>
-                     <?php if (!empty($banner['description'])): ?>
-                        <div class="promo-description">
+                
+                <div class="promo-detail-body">
+                    <h1 class="promo-detail-title"><?php echo htmlspecialchars($banner['title']); ?></h1>
+                    
+                    <?php if (!empty($banner['description'])): ?>
+                        <div class="promo-detail-desc">
                             <?php echo nl2br(htmlspecialchars($banner['description'])); ?>
                         </div>
+                    <?php else: ?>
+                        <div class="promo-detail-desc text-muted italic">
+                            Belum ada deskripsi detail untuk promo ini.
+                        </div>
                     <?php endif; ?>
-                    <div class="promo-actions">
-                        <a href="index.php#games" class="btn-primary">Top Up Sekarang</a>
-                        <a href="index.php" class="btn-secondary">Lihat Game Lain</a>
+
+                    <div class="promo-detail-btn-group">
+                        <a href="index.php#games" class="btn-primary" style="padding: 0.8rem 2rem; border-radius: 12px; text-decoration: none;">Top Up Sekarang</a>
+                        <a href="promo.php" class="btn-secondary" style="padding: 0.8rem 2rem; border-radius: 12px; text-decoration: none;">Lihat Promo Lain</a>
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
-    </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-            <p>Platform Top Up Game Terpercaya di Indonesia</p>
-        </div>
-    </footer>
-
-    <script src="js/script.js"></script>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+
+

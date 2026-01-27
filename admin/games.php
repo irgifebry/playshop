@@ -112,6 +112,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new RuntimeException('Upload gambar gagal: ' . ($upload['message'] ?? 'unknown'));
                 }
                 $image_path = to_public_path((string)$upload['path']);
+                
+                // Delete old file if update success
+                $old_image_to_delete = $existing['image_path'] ?? null;
             }
 
             $stmt = $pdo->prepare("UPDATE games SET name = ?, icon = ?, image_path = ?, description = ?, how_to_topup = ?, faq = ?, color_start = ?, color_end = ?, min_price = ?, is_active = ?, category = ? WHERE id = ?");
@@ -129,6 +132,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $category !== '' ? $category : 'Other',
                 $id
             ]);
+            
+            // If we have an old image to delete, do it now
+            if (isset($old_image_to_delete)) {
+                delete_uploaded_file($old_image_to_delete);
+            }
             
             // Handle products (nominal/asset) update
             if (isset($_POST['products_action'])) {
@@ -182,8 +190,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'delete') {
             $id = safe_int($_POST['game_id'] ?? 0);
             if ($id <= 0) throw new RuntimeException('game_id invalid');
-            $stmt = $pdo->prepare("DELETE FROM games WHERE id = ?");
+
+            // Get image path before delete
+            $stmt = $pdo->prepare("SELECT image_path FROM games WHERE id = ?");
             $stmt->execute([$id]);
+            $g = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $stmt = $pdo->prepare("DELETE FROM games WHERE id = ?");
+            if ($stmt->execute([$id]) && !empty($g['image_path'])) {
+                delete_uploaded_file($g['image_path']);
+            }
             $success = 'Game berhasil dihapus!';
         }
 
@@ -210,7 +226,8 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Game | Admin PLAYSHOP.ID</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="admin-layout">
@@ -361,8 +378,9 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
 
                 <div class="form-group">
                     <label>Gambar Icon (opsional)</label>
-                    <input type="file" name="image" accept="image/*">
-                    <small style="color:#6b7280;">Jika diupload, halaman user akan menampilkan gambar; kalau tidak, pakai emoji icon.</small>
+                    <input type="file" name="image" id="gameImage" accept="image/*">
+                    <img id="gameImagePreview" src="" alt="preview" style="display:none; max-width: 100px; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <small style="color:#6b7280; display: block; margin-top: 5px;">Jika diupload, halaman user akan menampilkan gambar; kalau tidak, pakai emoji icon.</small>
                 </div>
 
                 <div class="form-group">
@@ -466,6 +484,9 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
             container.appendChild(row);
         }
 
+        const gameImagePreview = document.getElementById('gameImagePreview');
+        const gameImageInput = document.getElementById('gameImage');
+
         function openAddModal() {
             document.getElementById('modalTitle').textContent = 'Tambah Game';
             document.getElementById('modalAction').value = 'add';
@@ -482,6 +503,11 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
             document.getElementById('how_to_topup').value = '';
             document.getElementById('faq').value = '';
             document.getElementById('productsContainer').innerHTML = '';
+            
+            gameImagePreview.src = '';
+            gameImagePreview.style.display = 'none';
+            gameImageInput.value = '';
+
             productRowCounter = 0;
             addProductRow();
             addProductRow();
@@ -504,6 +530,19 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
             document.getElementById('how_to_topup').value = game.how_to_topup || '';
             document.getElementById('faq').value = game.faq || '';
             
+            if (game.image_path) {
+                let src = game.image_path;
+                if (!src.startsWith('http')) {
+                    src = '../' + src.replace(/^\//, '');
+                }
+                gameImagePreview.src = src;
+                gameImagePreview.style.display = 'block';
+            } else {
+                gameImagePreview.src = '';
+                gameImagePreview.style.display = 'none';
+            }
+            gameImageInput.value = '';
+            
             // Clear and load products
             document.getElementById('productsContainer').innerHTML = '<input type="hidden" id="deleteProductIds" name="product_delete_ids[]" value="">';
             productRowCounter = 0;
@@ -523,6 +562,18 @@ $products = $pdo->query("SELECT * FROM products ORDER BY game_id, price")->fetch
         function closeModal() {
             document.getElementById('gameModal').style.display = 'none';
         }
+
+        gameImageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    gameImagePreview.src = e.target.result;
+                    gameImagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>

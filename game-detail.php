@@ -42,26 +42,10 @@ $bannerStyle = "background: linear-gradient(135deg, {$game['color_start']}, {$ga
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($game['name']); ?> | Detail Game - PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="promo.php">Promo</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
 
     <section class="checkout-section">
         <div class="container">
@@ -136,10 +120,8 @@ $bannerStyle = "background: linear-gradient(135deg, {$game['color_start']}, {$ga
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+
+

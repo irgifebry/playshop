@@ -28,119 +28,99 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hubungi Kami | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="faq.php">FAQ</a></li>
-                    <li><a href="contact.php" class="active">Kontak</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
 
-    <section class="contact-section">
+
+    <section class="legal-header">
         <div class="container">
-            <h1 class="page-title">Hubungi Kami</h1>
-            <p class="page-subtitle">Ada pertanyaan? Kami siap membantu Anda</p>
+            <span class="legal-badge">Bantuan Pelanggan</span>
+            <h1>Hubungi Kami</h1>
+            <p>Ada pertanyaan atau kendala? Kami siap membantu Anda 24/7.</p>
+        </div>
+    </section>
 
-            <div class="contact-grid">
-                <!-- Contact Info -->
-                <div class="contact-info-cards">
-                    <div class="contact-card">
-                        <div class="contact-icon">📧</div>
-                        <h3>Email</h3>
-                        <p>support@playshop.id</p>
-                        <p>cs@playshop.id</p>
-                    </div>
+    <div class="container">
+        <div class="legal-layout">
+            <aside class="legal-sidebar">
+                <nav class="legal-nav">
+                    <a href="privacy.php" class="legal-nav-item">Kebijakan Privasi</a>
+                    <a href="partnership.php" class="legal-nav-item">Partnership</a>
+                    <a href="about.php" class="legal-nav-item">Tentang Kami</a>
+                    <a href="career.php" class="legal-nav-item">Karier</a>
+                    <a href="blog.php" class="legal-nav-item">Blog</a>
+                    <a href="contact.php" class="legal-nav-item active">Kontak</a>
+                    <a href="faq.php" class="legal-nav-item">FAQ</a>
+                    <a href="testimonials.php" class="legal-nav-item">Testimoni</a>
+                </nav>
+            </aside>
 
-                    <div class="contact-card">
-                        <div class="contact-icon">📱</div>
-                        <h3>WhatsApp</h3>
-                        <p>+62 812-3456-7890</p>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="btn-wa">Chat WhatsApp</a>
-                    </div>
-
-                    <div class="contact-card">
-                        <div class="contact-icon">🕐</div>
-                        <h3>Jam Operasional</h3>
-                        <p>Senin - Jumat: 09:00 - 21:00</p>
-                        <p>Sabtu - Minggu: 10:00 - 18:00</p>
-                    </div>
-
-                    <div class="contact-card">
-                        <div class="contact-icon">🌐</div>
-                        <h3>Social Media</h3>
-                        <div class="social-links">
-                            <a href="#" target="_blank">📘 Facebook</a>
-                            <a href="#" target="_blank">📷 Instagram</a>
-                            <a href="#" target="_blank">🐦 Twitter</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contact Form -->
-                <div class="contact-form-wrapper">
+            <main class="legal-content">
+                <div class="legal-block">
                     <h2>Kirim Pesan</h2>
+                    <p>Silakan isi formulir di bawah ini. Tim kami akan merespons pesan Anda maksimal dalam waktu 1x24 jam kerja.</p>
                     
                     <?php if($success): ?>
-                        <div class="alert success"><?php echo $success; ?></div>
+                        <div class="alert success" style="background: rgba(16, 185, 129, 0.1); color: var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);"><?php echo $success; ?></div>
                     <?php endif; ?>
                     
                     <?php if($error): ?>
-                        <div class="alert error"><?php echo $error; ?></div>
+                        <div class="alert error" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--danger);"><?php echo $error; ?></div>
                     <?php endif; ?>
 
                     <form method="POST" class="contact-form">
-                        <div class="form-group">
-                            <label>Nama Lengkap</label>
-                            <input type="text" name="name" placeholder="Masukkan nama Anda" required>
+                        <div class="grid-2-col" style="margin-bottom: 1rem;">
+                            <div class="form-group" style="display:flex; flex-direction:column; gap:0.5rem;">
+                                <label style="font-weight:600; font-size:0.9rem;">Nama Lengkap</label>
+                                <input type="text" name="name" placeholder="Nama Anda" style="padding: 0.8rem; border: 1px solid #e5e7eb; border-radius: 8px;" required>
+                            </div>
+                            <div class="form-group" style="display:flex; flex-direction:column; gap:0.5rem;">
+                                <label style="font-weight:600; font-size:0.9rem;">Email</label>
+                                <input type="email" name="email" placeholder="email@example.com" style="padding: 0.8rem; border: 1px solid #e5e7eb; border-radius: 8px;" required>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="email@example.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Subjek</label>
-                            <select name="subject" required>
+                        <div class="form-group" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom: 1rem;">
+                            <label style="font-weight:600; font-size:0.9rem;">Subjek</label>
+                            <select name="subject" style="padding: 0.8rem; border: 1px solid #e5e7eb; border-radius: 8px;" required>
                                 <option value="">Pilih subjek</option>
                                 <option value="Pertanyaan Umum">Pertanyaan Umum</option>
                                 <option value="Masalah Transaksi">Masalah Transaksi</option>
                                 <option value="Refund/Komplain">Refund/Komplain</option>
-                                <option value="Saran & Kritik">Saran & Kritik</option>
-                                <option value="Kerjasama">Kerjasama</option>
                                 <option value="Lainnya">Lainnya</option>
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label>Pesan</label>
-                            <textarea name="message" rows="6" placeholder="Tulis pesan Anda di sini..." required></textarea>
+                        <div class="form-group" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom: 1.5rem;">
+                            <label style="font-weight:600; font-size:0.9rem;">Pesan</label>
+                            <textarea name="message" rows="5" placeholder="Tulis pesan Anda..." style="padding: 0.8rem; border: 1px solid #e5e7eb; border-radius: 8px; resize:vertical;" required></textarea>
                         </div>
 
-                        <button type="submit" class="btn-submit">Kirim Pesan</button>
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 10px; font-weight: 700;">Kirim Sekarang</button>
                     </form>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
+                <div class="legal-block" style="margin-top: 4rem;">
+                    <h2>Informasi Kontak Lainnya</h2>
+                    <div class="grid-2-col" style="margin-top: 1rem;">
+                        <div>
+                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">📱 WhatsApp</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-light);">+62 812-3456-7890 (Chat Only)</p>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">📧 Official Email</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-light);">support@playshop.id</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-    </footer>
+    </div>
+
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+

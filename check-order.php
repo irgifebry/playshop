@@ -1,5 +1,16 @@
 <?php
+session_start();
 require_once 'config/database.php';
+require_once __DIR__ . '/includes/db_utils.php';
+
+// Ensure user is logged in
+if(!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_email = $_SESSION['user_email'] ?? '';
 
 $transaction = null;
 $error = '';
@@ -7,16 +18,31 @@ $error = '';
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $order_id = $_POST['order_id'];
     
-    $stmt = $pdo->prepare("SELECT t.*, g.name as game_name, p.name as product_name 
-                           FROM transactions t 
-                           JOIN games g ON t.game_id = g.id 
-                           JOIN products p ON t.product_id = p.id 
-                           WHERE t.order_id = ?");
-    $stmt->execute([$order_id]);
+    // Build query with security check: order must belong to this user
+    $query = "SELECT t.*, g.name as game_name, p.name as product_name 
+              FROM transactions t 
+              JOIN games g ON t.game_id = g.id 
+              JOIN products p ON t.product_id = p.id 
+              WHERE t.order_id = ? AND (";
+    
+    $params = [$order_id];
+    
+    if (db_has_column($pdo, 'transactions', 'account_user_id')) {
+        $query .= " t.account_user_id = ? ";
+        $params[] = (int)$user_id;
+    } else {
+        $query .= " t.user_id = ? ";
+        $params[] = $user_email;
+    }
+    
+    $query .= ")";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
     $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if(!$transaction) {
-        $error = 'Order ID tidak ditemukan!';
+        $error = 'Order ID tidak ditemukan atau bukan milik Anda!';
     }
 }
 ?>
@@ -27,32 +53,24 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cek Status Pesanan | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="check-order.php" class="active">Cek Order</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
 
-    <section class="check-order-section">
+
+    <?php 
+    // Only animate on initial page load (GET), not after form submission (POST)
+    $animate_class = ($_SERVER['REQUEST_METHOD'] === 'GET') ? 'animate-page-entrance' : ''; 
+    ?>
+    <section class="check-order-section <?php echo $animate_class; ?>">
         <div class="container">
+            <h1 class="page-title">🔍 Cek Status Pesanan</h1>
+            <p class="page-subtitle">Masukkan Order ID untuk melihat rincian dan status transaksi Anda secara real-time</p>
+            
             <div class="check-order-box">
-                <h1>Cek Status Pesanan</h1>
-                <p>Masukkan Order ID untuk melihat status transaksi Anda</p>
-
+                <!-- ... existing content ... -->
                 <form method="POST" class="check-form">
                     <div class="form-group">
                         <input type="text" name="order_id" placeholder="Contoh: TRX17123456789" required>
@@ -132,10 +150,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+

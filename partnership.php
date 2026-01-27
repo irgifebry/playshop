@@ -6,46 +6,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partnership | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<header>
-    <nav class="navbar">
+<?php include "includes/header.php"; ?>
+    
+
+
+    <section class="legal-header">
         <div class="container">
-            <div class="logo">
-                <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                    <span class="logo-icon">🎮</span>
-                    <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                </a>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="partnership.php" class="active">Partnership</a></li>
-                <li><a href="contact.php">Kontak</a></li>
-            </ul>
+            <span class="legal-badge">Kolaborasi</span>
+            <h1>Partnership</h1>
+            <p>Jadilah mitra strategis PLAYSHOP.ID dan tumbuh bersama kami.</p>
         </div>
-    </nav>
-</header>
+    </section>
 
-<section class="legal-section">
     <div class="container">
-        <h1 class="page-title">Partnership</h1>
-        <p class="page-subtitle">Kerja sama reseller / corporate / komunitas.</p>
+        <div class="legal-layout">
+            <aside class="legal-sidebar">
+                <nav class="legal-nav">
+                    <a href="privacy.php" class="legal-nav-item">Kebijakan Privasi</a>
+                    <a href="partnership.php" class="legal-nav-item active">Partnership</a>
+                    <a href="about.php" class="legal-nav-item">Tentang Kami</a>
+                    <a href="career.php" class="legal-nav-item">Karier</a>
+                    <a href="blog.php" class="legal-nav-item">Blog</a>
+                    <a href="contact.php" class="legal-nav-item">Kontak</a>
+                    <a href="faq.php" class="legal-nav-item">FAQ</a>
+                    <a href="testimonials.php" class="legal-nav-item">Testimoni</a>
+                </nav>
+            </aside>
 
-        <div class="legal-content">
-            <div class="legal-block">
-                <h2>Ajukan kerja sama</h2>
-                <p>Silakan gunakan halaman kontak untuk mengirim proposal kerja sama. (Tahap berikutnya bisa ditambah form khusus partnership.)</p>
-                <a href="contact.php" class="btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Hubungi Kami</a>
-            </div>
+            <main class="legal-content">
+                <div class="legal-block">
+                    <h2>Ajukan Kerja Sama</h2>
+                    <p>Kami membuka peluang kerja sama yang luas bagi pemilik komunitas gaming, influencer, reseller, maupun korporasi yang ingin mengintegrasikan layanan top up ke dalam ekosistem mereka.</p>
+                    
+                    <h3>Keuntungan Menjadi Mitra:</h3>
+                    <ul>
+                        <li>Harga khusus reseller dengan margin yang kompetitif.</li>
+                        <li>Dukungan API integrasi yang cepat dan stabil.</li>
+                        <li>Akses ke promosi eksklusif untuk komunitas Anda.</li>
+                        <li>Layanan prioritas dari tim dukungan pelanggan kami.</li>
+                    </ul>
+
+                    <p>Saat ini kami sedang menyiapkan portal khusus mitra. Sementara itu, silakan gunakan halaman kontak untuk mengirim proposal kerja sama atau pertanyaan awal Anda.</p>
+                    
+                    <div style="margin-top: 2rem;">
+                        <a href="contact.php" class="btn-primary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Hubungi Tim Kemitraan</a>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
-</section>
 
-<footer class="footer">
-    <div class="container">
-        <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-    </div>
-</footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+
+

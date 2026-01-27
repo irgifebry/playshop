@@ -24,3 +24,21 @@ function upload_image_dummy(array $file, string $destDir, array $allowedExt = ['
     return ['ok' => true, 'path' => $path, 'message' => 'OK'];
 }
 
+/**
+ * Safely delete a file given its app-relative path.
+ */
+function delete_uploaded_file(?string $relPath): bool {
+    if (!$relPath) return false;
+    
+    // Normalize path to prevent directory traversal
+    $relPath = ltrim(str_replace(['..', '\\'], ['', '/'], $relPath), '/');
+    if ($relPath === '') return false;
+
+    // Use absolute path relative to project root
+    $absPath = realpath(__DIR__ . '/../') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relPath);
+    
+    if (file_exists($absPath) && is_file($absPath)) {
+        return @unlink($absPath);
+    }
+    return false;
+}

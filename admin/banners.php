@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 require_once __DIR__ . '/../includes/upload.php';
+require_once __DIR__ . '/../includes/db_utils.php';
 
 if(!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
@@ -76,12 +77,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $image_path = str_replace(realpath(__DIR__ . '/..') ?: '', '', realpath($absPath) ?: $absPath);
                     $image_path = str_replace('\\', '/', $image_path);
                     if (substr($image_path, 0, 1) !== '/') $image_path = '/' . ltrim($image_path, '/');
+                    
+                    // Delete old file if update success (wait for success check below)
+                    $old_image_to_delete = $existing['image_path'] ?? null;
                 }
             }
 
             if (!$error) {
                 $stmt = $pdo->prepare("UPDATE banners SET title = ?, description = ?, image_path = ?, link_url = ?, sort_order = ?, is_active = ?, start_date = ?, end_date = ? WHERE id = ?");
                 $stmt->execute([$title, $description ?: null, $image_path, $link_url ?: null, $sort_order, $is_active, $start_date ?: null, $end_date ?: null, $id]);
+                
+                // If we have an old image to delete, do it now
+                if (isset($old_image_to_delete)) {
+                    delete_uploaded_file($old_image_to_delete);
+                }
+
                 $success = 'Banner berhasil diupdate.';
             }
         }
@@ -90,8 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete') {
         $id = safe_int($_POST['id'] ?? 0);
         if ($id > 0) {
-            $stmt = $pdo->prepare("DELETE FROM banners WHERE id = ?");
+            // Get image path before delete
+            $stmt = $pdo->prepare("SELECT image_path FROM banners WHERE id = ?");
             $stmt->execute([$id]);
+            $b = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $stmt = $pdo->prepare("DELETE FROM banners WHERE id = ?");
+            if ($stmt->execute([$id]) && !empty($b['image_path'])) {
+                delete_uploaded_file($b['image_path']);
+            }
             $success = 'Banner berhasil dihapus.';
         }
     }
@@ -113,7 +130,8 @@ $banners = $pdo->query("SELECT * FROM banners ORDER BY sort_order ASC, created_a
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Banner | Admin PLAYSHOP.ID</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="admin-layout">
@@ -150,13 +168,11 @@ $banners = $pdo->query("SELECT * FROM banners ORDER BY sort_order ASC, created_a
                             <tr>
                                 <td><?php echo (int)$b['id']; ?></td>
                                 <td>
-                                    <?php
-                                        $imgSrc = $b['image_path'] ?? '';
-                                        if ($imgSrc !== '' && substr($imgSrc, 0, 1) === '/') {
-                                            $imgSrc = '..' . $imgSrc; // admin/ berada satu level di bawah root
-                                        }
-                                    ?>
-                                    <img src="<?php echo htmlspecialchars($imgSrc); ?>" alt="banner" style="width:120px;height:48px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;background-color:#f3f4f6;" />
+                                    <?php if(!empty($b['image_path'])): ?>
+                                        <img src="<?php echo asset_url($b['image_path']); ?>" alt="banner" style="width:120px;height:48px;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;background-color:#f3f4f6;" />
+                                    <?php else: ?>
+                                        <span style="font-size: 0.7rem; color: #9ca3af;">No image</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td><strong><?php echo htmlspecialchars($b['title']); ?></strong></td>
                                 <td><?php echo htmlspecialchars((string)($b['link_url'] ?? '')); ?></td>
@@ -288,7 +304,11 @@ $banners = $pdo->query("SELECT * FROM banners ORDER BY sort_order ASC, created_a
             document.getElementById('bannerEndDate').value = banner.end_date || '';
             
             if (banner.image_path) {
-                imagePreview.src = banner.image_path;
+                let src = banner.image_path;
+                if (!src.startsWith('http')) {
+                    src = '../' + src.replace(/^\//, '');
+                }
+                imagePreview.src = src;
                 imagePreview.style.display = 'block';
             } else {
                 imagePreview.src = '';

@@ -31,15 +31,18 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="auth-page">
     <div class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <span class="logo-icon" aria-label="PLAYSHOP.ID"></span>
-                <h2>Admin Panel</h2>
-                <p>PLAYSHOP.ID</p>
+                <div class="auth-logo-container" style="margin-top: -1rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center;">
+                    <img src="../assets/logo.png" alt="Logo" class="auth-logo" style="height: 100px; width: auto; max-width: 100%; object-fit: contain;">
+                </div>
+                <h2>Admin Login</h2>
+                <p>Silakan masuk ke panel kontrol</p>
             </div>
             
             <?php if($error): ?>
@@ -55,12 +58,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label>Password</label>
                     <input type="password" name="password" placeholder="Masukkan password" required>
                 </div>
-                <button type="submit" class="btn-login">Login</button>
+                <button type="submit" class="btn-login" style="margin-top: 10px;">Masuk Sekarang</button>
             </form>
             
             <div class="login-footer">
-                <p>Default: admin / admin123</p>
-                <a href="../index.php">← Kembali ke Beranda</a>
+                <p style="margin-bottom: 10px; color: #9ca3af; font-size: 0.8rem;">Default: admin / admin123</p>
+                <a href="../index.php" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Kembali ke Beranda</a>
             </div>
         </div>
     </div>

@@ -63,6 +63,13 @@ if (db_has_column($pdo, 'transactions', 'account_user_id')) {
 $stmt = $pdo->prepare($statsQuery);
 $stmt->execute($statsParams);
 $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get recent deposits
+$stmt = $pdo->prepare("SELECT d.*, pm.name as method_name FROM deposits d 
+                       JOIN payment_methods pm ON d.payment_method_id = pm.id 
+                       WHERE d.user_id = ? ORDER BY d.created_at DESC LIMIT 5");
+$stmt->execute([$user_id]);
+$recent_deposits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -71,31 +78,18 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Saya | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <a href="index.php" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                        <span class="logo-icon">🎮</span>
-                        <span class="logo-text">PLAYSHOP<span class="highlight">.ID</span></span>
-                    </a>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="history.php">Riwayat</a></li>
-                    <li><a href="profile.php" class="active">Profil</a></li>
-                    <li><a href="logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <?php include "includes/header.php"; ?>
+    
+
 
     <section class="profile-section">
         <div class="container">
-            <h1 class="page-title">Profil Saya</h1>
+            <h1 class="page-title">👤 Profil Saya</h1>
+            <p class="page-subtitle">Kelola informasi akun dan pengaturan keamanan Anda</p>
 
             <?php if($success): ?>
                 <div class="alert success"><?php echo $success; ?></div>
@@ -120,6 +114,11 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
                     
                     <div class="profile-stats">
                         <div class="stat-item">
+                            <span class="stat-value">Rp <?php echo number_format($user['balance'] ?? 0, 0, ',', '.'); ?></span>
+                            <span class="stat-label">Saldo Akun</span>
+                            <a href="deposit.php" class="stat-link">+ Top Up Saldo</a>
+                        </div>
+                        <div class="stat-item">
                             <span class="stat-value"><?php echo $stats['total'] ?? 0; ?></span>
                             <span class="stat-label">Total Transaksi</span>
                         </div>
@@ -127,6 +126,34 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
                             <span class="stat-value">Rp <?php echo number_format($stats['total_spent'] ?? 0, 0, ',', '.'); ?></span>
                             <span class="stat-label">Total Belanja</span>
                         </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+                        <a href="history.php" class="btn-checkout" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 0.85rem; padding: 0.8rem; background: var(--secondary); flex: 1;">
+                            📜 Riwayat Transaksi
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Deposits -->
+                <div class="profile-card">
+                    <h3>Riwayat Deposit Terakhir</h3>
+                    <div class="deposit-list" style="margin-top: 1rem;">
+                        <?php if(count($recent_deposits) > 0): ?>
+                            <?php foreach($recent_deposits as $rd): ?>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6;">
+                                <div>
+                                    <div style="font-weight: 700; font-size: 0.9rem;">+ Rp <?php echo number_format($rd['amount'], 0, ',', '.'); ?></div>
+                                    <small style="color: #6b7280;"><?php echo $rd['method_name']; ?> • <?php echo date('d/m/y', strtotime($rd['created_at'])); ?></small>
+                                </div>
+                                <span class="status-badge <?php echo $rd['status']; ?>" style="font-size: 0.7rem;">
+                                    <?php echo ucfirst($rd['status']); ?>
+                                </span>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="color: #9ca3af; font-size: 0.9rem;">Belum ada riwayat deposit.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -175,10 +202,7 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 PLAYSHOP.ID - Transaksi Cepat & Aman</p>
-        </div>
-    </footer>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
 </html>
+
