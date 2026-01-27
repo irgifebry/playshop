@@ -165,4 +165,4 @@ Kontribusi sangat diterima! Jika Anda ingin menambahkan fitur baru atau memperba
 Proyek ini bersifat open-source dan bebas digunakan untuk pembelajaran atau pengembangan lebih lanjut.
 
 ---
-*Dibuat dengan ❤️ oleh Tim Pengembang Playshop*
+*Terima Kasih*
