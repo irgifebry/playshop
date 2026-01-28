@@ -187,7 +187,7 @@ $_SESSION['order_id'] = $order_id;
 
                         <form method="POST" action="success.php">
                             <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
-                            <button type="submit" class="btn-confirm">SIMULASI PEMBAYARAN BERHASIL</button>
+                            <button type="submit" class="btn-confirm">SUDAH BAYAR</button>
                         </form>
                     </div>
                 </div>

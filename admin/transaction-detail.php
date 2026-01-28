@@ -19,9 +19,57 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newStatus = $_POST['status'] ?? '';
     if (in_array($newStatus, ['pending','success','failed'], true)) {
+        // Get current status to check if it's changing to success
+        $stmt = $pdo->prepare("SELECT status, product_id, voucher_code, discount_amount FROM transactions WHERE order_id = ?");
+        $stmt->execute([$order_id]);
+        $currentTrx = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Update status
         $stmt = $pdo->prepare("UPDATE transactions SET status = ?, updated_at = NOW() WHERE order_id = ?");
         $stmt->execute([$newStatus, $order_id]);
-        $success = 'Status transaksi berhasil diupdate.';
+        
+        // If status is being changed TO success (from non-success), process stock and voucher
+        if ($newStatus === 'success' && $currentTrx && $currentTrx['status'] !== 'success') {
+            // Decrement stock
+            try {
+                $stmt = $pdo->prepare("UPDATE products SET stock = stock - 1 WHERE id = ? AND stock IS NOT NULL AND stock > 0");
+                $stmt->execute([(int)$currentTrx['product_id']]);
+            } catch (Exception $e) {}
+            
+            // Update voucher usage counter
+            try {
+                $voucherCode = strtoupper(trim((string)($currentTrx['voucher_code'] ?? '')));
+                $discountAmount = (int)($currentTrx['discount_amount'] ?? 0);
+                if ($voucherCode !== '' && $discountAmount > 0) {
+                    $stmt = $pdo->prepare("UPDATE vouchers SET used_count = used_count + 1 WHERE code = ?");
+                    $stmt->execute([$voucherCode]);
+                }
+            } catch (Exception $e) {}
+            
+            // Log to notifications
+            try {
+                $stmt = $pdo->prepare("SELECT g.name as game_name, p.name as product_name, t.amount, t.user_id 
+                                       FROM transactions t 
+                                       JOIN games g ON t.game_id = g.id 
+                                       JOIN products p ON t.product_id = p.id 
+                                       WHERE t.order_id = ?");
+                $stmt->execute([$order_id]);
+                $trxInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $logMessage = sprintf(
+                    "[ADMIN KONFIRMASI SUKSES] Order ID: %s | Game: %s | Produk: %s | Total: Rp %s | User: %s",
+                    $order_id,
+                    $trxInfo['game_name'],
+                    $trxInfo['product_name'],
+                    number_format((int)$trxInfo['amount'], 0, ',', '.'),
+                    $trxInfo['user_id'] ?? 'Guest'
+                );
+                $stmt = $pdo->prepare("INSERT INTO notifications_log (message, created_at) VALUES (?, NOW())");
+                $stmt->execute([$logMessage]);
+            } catch (Exception $e) {}
+        }
+        
+        $success = 'Status transaksi berhasil diupdate menjadi ' . ucfirst($newStatus) . '.';
     } else {
         $error = 'Status tidak valid.';
     }

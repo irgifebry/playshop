@@ -65,9 +65,9 @@ $others = $other_posts->fetchAll(PDO::FETCH_ASSOC);
             <aside class="legal-sidebar">
                 <div class="legal-nav">
                     <h3 style="font-size: 1.1rem; margin-bottom: 1rem; padding: 0 0.5rem;">Artikel Lainnya</h3>
-                    <div style="display: grid; gap: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <?php foreach($others as $oth): ?>
-                            <a href="post-detail.php?slug=<?php echo $oth['slug']; ?>" class="legal-nav-item" style="font-size: 0.9rem; padding: 0.6rem 0.8rem;">
+                            <a href="post-detail.php?slug=<?php echo $oth['slug']; ?>" class="legal-nav-item" style="font-size: 0.85rem; padding: 0.75rem 1rem; height: auto !important; white-space: normal !important; line-height: 1.4; display: block; overflow: visible;">
                                 <?php echo htmlspecialchars($oth['title']); ?>
                             </a>
                         <?php endforeach; ?>

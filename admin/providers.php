@@ -51,7 +51,7 @@ $providers = $pdo->query("SELECT * FROM api_providers")->fetchAll();
         <main class="main-content">
             <div class="content-header">
                 <h1>API Provider & Balances</h1>
-                <p style="color: #6b7280">Manajemen koneksi ke provider top up (Simulasi)</p>
+                <p style="color: #6b7280">Manajemen koneksi ke provider top up</p>
             </div>
 
             <?php if($success) echo "<div class='alert success'>$success</div>"; ?>

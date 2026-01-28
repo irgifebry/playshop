@@ -2,8 +2,6 @@
 session_start();
 require_once 'config/database.php';
 require_once __DIR__ . '/includes/db_utils.php';
-require_once __DIR__ . '/includes/email.php';
-require_once __DIR__ . '/includes/whatsapp.php';
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['order_id'])) {
     header('Location: index.php');
@@ -12,9 +10,8 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['order_id'])) {
 
 $order_id = $_POST['order_id'];
 
-// Update status transaksi
-$stmt = $pdo->prepare("UPDATE transactions SET status = 'success', updated_at = NOW() WHERE order_id = ?");
-$stmt->execute([$order_id]);
+// TIDAK auto-update ke success, biarkan tetap pending
+// Status akan diupdate oleh admin via admin/transaction-detail.php
 
 // Ambil detail transaksi
 $stmt = $pdo->prepare("SELECT t.*, g.name as game_name, p.name as product_name 
@@ -25,35 +22,25 @@ $stmt = $pdo->prepare("SELECT t.*, g.name as game_name, p.name as product_name
 $stmt->execute([$order_id]);
 $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Decrement stock if products.stock is used (NULL = unlimited)
-try {
-    $stmt = $pdo->prepare("UPDATE products SET stock = stock - 1 WHERE id = ? AND stock IS NOT NULL AND stock > 0");
-    $stmt->execute([(int)$transaction['product_id']]);
-} catch (Exception $e) {
-    // ignore stock update failures (optional feature)
+if (!$transaction) {
+    header('Location: index.php');
+    exit;
 }
 
-// Voucher usage counter (only if voucher_code exists)
+// Log pembayaran user (bukan konfirmasi sukses)
 try {
-    $voucherCode = strtoupper(trim((string)($transaction['voucher_code'] ?? '')));
-    $discountAmount = (int)($transaction['discount_amount'] ?? 0);
-    if ($voucherCode !== '' && $discountAmount > 0) {
-        $stmt = $pdo->prepare("UPDATE vouchers SET used_count = used_count + 1 WHERE code = ?");
-        $stmt->execute([$voucherCode]);
-    }
-} catch (Exception $e) {
-    // ignore voucher counter failures
-}
-
-// Dummy notifications (only if user is logged in)
-$toEmail = $_SESSION['user_email'] ?? null;
-if ($toEmail) {
-    email_send_dummy(
-        $toEmail,
-        "PLAYSHOP.ID - Pembayaran Berhasil ({$order_id})",
-        "Pesanan kamu berhasil. Order ID: {$order_id}\nGame: {$transaction['game_name']}\nProduk: {$transaction['product_name']}\nTotal: Rp " . number_format((int)$transaction['amount'], 0, ',', '.'),
-        ['order_id' => $order_id, 'type' => 'payment_success']
+    $logMessage = sprintf(
+        "[PEMBAYARAN DIKIRIM] Order ID: %s | Game: %s | Produk: %s | Total: Rp %s | User: %s | Menunggu konfirmasi admin",
+        $order_id,
+        $transaction['game_name'],
+        $transaction['product_name'],
+        number_format((int)$transaction['amount'], 0, ',', '.'),
+        $transaction['user_id'] ?? 'Guest'
     );
+    $stmt = $pdo->prepare("INSERT INTO notifications_log (message, created_at) VALUES (?, NOW())");
+    $stmt->execute([$logMessage]);
+} catch (Exception $e) {
+    // ignore log failures silently
 }
 ?>
 <!DOCTYPE html>
@@ -61,19 +48,35 @@ if ($toEmail) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran Berhasil | PLAYSHOP.ID</title>
+    <title>Menunggu Konfirmasi | PLAYSHOP.ID</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .waiting-icon {
+            font-size: 5rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
     <?php include "includes/header.php"; ?>
-    
-
 
     <section class="success-section">
         <div class="container">
-            <h1 class="page-title">✅ Transaksi Berhasil</h1>
-            <p class="page-subtitle">Terima kasih telah melakukan top up di PLAYSHOP.ID</p>
+            <h1 class="page-title">⏳ Menunggu Konfirmasi</h1>
+            <p class="page-subtitle">Pembayaran Anda sedang diverifikasi oleh admin</p>
 
             <div class="progress-steps">
                 <div class="step completed">
@@ -87,35 +90,34 @@ if ($toEmail) {
                 </div>
                 <div class="step-line"></div>
                 <div class="step active">
-                    <div class="step-number">✓</div>
-                    <div class="step-label">Selesai</div>
+                    <div class="step-number">⏳</div>
+                    <div class="step-label">Verifikasi</div>
                 </div>
             </div>
 
-
             <div class="success-container">
-                <div class="success-icon">✅</div>
-                <h1 class="success-title">Pembayaran Berhasil!</h1>
-                <p class="success-subtitle">Top up kamu sedang diproses</p>
+                <div class="waiting-icon">⏳</div>
+                <h1 class="success-title">Pembayaran Diterima!</h1>
+                <p class="success-subtitle">Pesanan Anda sedang menunggu konfirmasi dari admin</p>
 
                 <div class="success-details">
                     <h3>Detail Transaksi</h3>
                     <table class="detail-table">
                         <tr>
                             <td>Order ID</td>
-                            <td><strong><?php echo $transaction['order_id']; ?></strong></td>
+                            <td><strong><?php echo htmlspecialchars($transaction['order_id']); ?></strong></td>
                         </tr>
                         <tr>
                             <td>Game</td>
-                            <td><?php echo $transaction['game_name']; ?></td>
+                            <td><?php echo htmlspecialchars($transaction['game_name']); ?></td>
                         </tr>
                         <tr>
                             <td>Produk</td>
-                            <td><?php echo $transaction['product_name']; ?></td>
+                            <td><?php echo htmlspecialchars($transaction['product_name']); ?></td>
                         </tr>
                         <tr>
                             <td>User ID</td>
-                            <td><?php echo $transaction['user_id']; ?></td>
+                            <td><?php echo htmlspecialchars($transaction['user_id']); ?></td>
                         </tr>
                         <tr>
                             <td>Total Bayar</td>
@@ -123,43 +125,29 @@ if ($toEmail) {
                         </tr>
                         <tr>
                             <td>Status</td>
-                            <td><span class="status-badge success">Berhasil</span></td>
+                            <td><span class="status-pending">Menunggu Konfirmasi</span></td>
                         </tr>
                     </table>
                 </div>
 
-                <div class="success-info">
-                    <p>⚡ Diamond/UC akan masuk ke akun kamu dalam <strong>1-5 menit</strong></p>
-                    <p>📧 Bukti transaksi telah dikirim ke email kamu</p>
+                <div class="success-info" style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem;">
+                    <p style="margin: 0; color: #92400e;">⏰ <strong>Estimasi waktu verifikasi:</strong> 1-15 menit</p>
+                    <p style="margin: 0.5rem 0 0; color: #92400e; font-size: 0.9rem;">Anda akan menerima notifikasi setelah admin mengkonfirmasi pembayaran.</p>
+                </div>
+
+                <div class="success-info" style="margin-top: 1rem;">
+                    <p>📋 Simpan <strong>Order ID</strong> ini untuk mengecek status pesanan Anda</p>
+                    <p>💬 Hubungi CS jika pesanan tidak diproses dalam 30 menit</p>
                 </div>
 
                 <div class="success-actions">
-                    <a href="index.php" class="btn-primary">Kembali ke Beranda</a>
-                    <button onclick="window.print()" class="btn-secondary">Cetak Bukti</button>
+                    <a href="check-order.php" class="btn-primary">Cek Status Pesanan</a>
+                    <a href="index.php" class="btn-secondary">Kembali ke Beranda</a>
                 </div>
             </div>
         </div>
     </section>
 
     <?php include __DIR__ . '/includes/footer.php'; ?>
-    <script>
-        // Auto confetti effect
-        setTimeout(() => {
-            for(let i = 0; i < 50; i++) {
-                createConfetti();
-            }
-        }, 500);
-
-        function createConfetti() {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.animationDelay = Math.random() * 3 + 's';
-            confetti.style.backgroundColor = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'][Math.floor(Math.random() * 4)];
-            document.body.appendChild(confetti);
-            setTimeout(() => confetti.remove(), 3000);
-        }
-    </script>
 </body>
 </html>
-

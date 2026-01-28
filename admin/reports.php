@@ -60,13 +60,13 @@ $stmt = $pdo->prepare("SELECT
                        SUM(CASE WHEN t.status = 'success' THEN 1 ELSE 0 END) as success_count,
                        SUM(CASE WHEN t.status = 'pending' THEN 1 ELSE 0 END) as pending_count,
                        SUM(CASE WHEN t.status = 'failed' THEN 1 ELSE 0 END) as failed_count,
-                       SUM(CASE WHEN t.status = 'success' THEN t.amount ELSE 0 END) as total_revenue,
-                       SUM(CASE WHEN t.status = 'success' THEN (t.amount - p.purchase_price) ELSE 0 END) as total_profit
+                       SUM(CASE WHEN t.status = 'success' THEN t.amount ELSE 0 END) as total_revenue
                        FROM transactions t
-                       JOIN products p ON t.product_id = p.id
                        WHERE DATE(t.created_at) BETWEEN ? AND ?");
 $stmt->execute([$start_date, $end_date]);
 $summary = $stmt->fetch(PDO::FETCH_ASSOC);
+// Note: total_profit removed since products table doesn't have purchase_price column
+$summary['total_profit'] = 0;
 
 // Get by game
 $stmt = $pdo->prepare("SELECT g.name, COUNT(*) as count, SUM(t.amount) as revenue 

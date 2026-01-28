@@ -104,11 +104,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="settings-section">
-                        <h2>Payment Gateway (Dummy)</h2>
+                        <h2>Payment Gateway</h2>
                         <div class="form-group">
                             <label>Status Payment Gateway</label>
                             <select name="payment_mode">
-                                <option value="dummy" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'dummy') ? 'selected' : ''; ?>>✅ Aktif (Dummy Mode)</option>
+                                <option value="dummy" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'dummy') ? 'selected' : ''; ?>>✅ Aktif</option>
                                 <option value="off" <?php echo (setting($settings, 'payment_mode', 'dummy') === 'off') ? 'selected' : ''; ?>>❌ Non-aktif</option>
                             </select>
                         </div>
