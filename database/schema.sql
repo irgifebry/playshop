@@ -289,6 +289,15 @@ INSERT INTO payment_methods (name, code, type, fee_flat, fee_percent, image_path
 ('QRIS', 'QRIS', 'E-Wallet', 0, 0.7, NULL, 1),
 ('GoPay', 'GOPAY', 'E-Wallet', 1000, 2.0, NULL, 1);
 
+INSERT INTO banners (image_path, title, description, link_url, sort_order, is_active, start_date, end_date) VALUES
+('uploads/banners/banner_mlbb_promo.png', 'Promo Diamond MLBB 50% OFF', 'Promo spesial top up Diamond Mobile Legends! Dapatkan diskon hingga 50% untuk semua nominal. Periode terbatas!', 'game-detail.php?id=1', 1, 1, '2026-01-01', '2026-12-31'),
+('uploads/banners/banner_ff_flashsale.png', 'Flash Sale Free Fire', 'Flash Sale Diamond Free Fire! Diskon hingga 90% untuk waktu terbatas. Buruan sebelum kehabisan!', 'game-detail.php?id=2', 2, 1, '2026-01-01', '2026-12-31'),
+('uploads/banners/banner_welcome.png', 'Top Up Instant 24 Jam', 'Selamat datang di PLAYSHOP.ID! Top up game favorit kamu kapan saja, proses instan 24 jam non-stop.', 'index.php', 3, 1, '2026-01-01', '2026-12-31');
+
+INSERT INTO api_providers (name, api_key, secret_key, endpoint, balance, is_active) VALUES
+('Digiflazz', 'digi-api-key-xxxxx', 'digi-secret-xxxxx', 'https://api.digiflazz.com/v1', 5000000, 1),
+('VIP Reseller', 'vip-api-key-xxxxx', 'vip-secret-xxxxx', 'https://vip-reseller.co.id/api', 2500000, 1);
+
 INSERT INTO settings (setting_key, setting_value) VALUES
 ('site_name', 'PLAYSHOP.ID'),
 ('contact_email', 'support@playshop.id'),
