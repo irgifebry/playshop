@@ -43,7 +43,7 @@ Mengambil daftar semua game yang aktif.
           "id": 1,
           "name": "Mobile Legends",
           "icon": "⚔️",
-          "min_price": 5000,
+          "min_price": 15000,
           ...
         },
         ...

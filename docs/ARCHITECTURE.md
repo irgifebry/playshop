@@ -23,6 +23,7 @@ Berisi halaman-halaman yang dapat diakses publik (User Interface).
 *   `index.php`: Halaman muka (Homepage).
 *   `checkout.php`: Halaman transaksi.
 *   `game-detail.php`: Detail produk game.
+*   `promo-detail.php`: Detail promo dari banner klik.
 *   `payment.php`: Halaman pembayaran dengan instruksi transfer.
 *   `success.php`: Halaman konfirmasi pembayaran (status: menunggu verifikasi admin).
 *   `check-order.php`: Halaman tracking status pesanan.
@@ -145,9 +146,9 @@ Meskipun sederhana, aplikasi menerapkan beberapa praktik keamanan dasar:
 ## 7. Fitur Logging & Monitoring
 
 *   **`notifications_log`**: Tabel untuk mencatat aktivitas penting:
-    - Pembayaran dikirim user
-    - Transaksi dikonfirmasi admin
-    - Event penting lainnya
+    - [PEMBAYARAN DIKIRIM]: Saat user masuk ke success.php.
+    - [ADMIN KONFIRMASI SUKSES]: Saat admin mengubah status via transaction-detail.php.
+    - [TRANSAKSI SUKSES]: Log legacy untuk transaksi yang berhasil otomatis.
 
 ---
 

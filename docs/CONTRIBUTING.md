@@ -63,6 +63,7 @@ Jika Anda menemukan bug:
 3.  **Koding**: Implementasikan fitur tersebut.
     *   Jika mengubah database, buat file migrasi SQL baru atau update instruksi di `docs/DATABASE.md`.
     *   Jika menambah halaman baru, pastikan header dan footer ter-include dengan benar.
+    *   **Gambar & Asset**: Gunakan fungsi `asset_url()` untuk semua asset gambar. Jika menambah gambar statis, letakkan di `assets/`. Jika gambar dinamis (admin upload), letakkan di `uploads/` (misal: `uploads/banners/`).
 4.  **Uji Coba**: Pastikan tidak ada fitur lain yang rusak.
 5.  **Pull Request**: Kirim PR dan jelaskan perubahan Anda.
 
