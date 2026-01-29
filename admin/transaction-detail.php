@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Log to notifications
             try {
-                $stmt = $pdo->prepare("SELECT g.name as game_name, p.name as product_name, t.amount, t.user_id 
+                $stmt = $pdo->prepare("SELECT g.name as game_name, p.name as product_name, t.amount, t.game_user_id 
                                        FROM transactions t 
                                        JOIN games g ON t.game_id = g.id 
                                        JOIN products p ON t.product_id = p.id 
@@ -57,12 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $trxInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 $logMessage = sprintf(
-                    "[ADMIN KONFIRMASI SUKSES] Order ID: %s | Game: %s | Produk: %s | Total: Rp %s | User: %s",
+                    "[ADMIN KONFIRMASI SUKSES] Order ID: %s | Game: %s | Produk: %s | Total: Rp %s | User ID: %s",
                     $order_id,
                     $trxInfo['game_name'],
                     $trxInfo['product_name'],
                     number_format((int)$trxInfo['amount'], 0, ',', '.'),
-                    $trxInfo['user_id'] ?? 'Guest'
+                    $trxInfo['game_user_id']
                 );
                 $stmt = $pdo->prepare("INSERT INTO notifications_log (message, created_at) VALUES (?, NOW())");
                 $stmt->execute([$logMessage]);
@@ -88,8 +88,8 @@ if (!$trx) {
     exit;
 }
 
-$gameUserId = $trx['game_user_id'] ?? $trx['user_id'];
-$gameZoneId = $trx['game_zone_id'] ?? $trx['zone_id'];
+$gameUserId = $trx['game_user_id'];
+$gameZoneId = $trx['game_zone_id'];
 ?>
 <!DOCTYPE html>
 <html lang="id">

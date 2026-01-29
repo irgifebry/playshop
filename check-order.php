@@ -23,19 +23,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
               FROM transactions t 
               JOIN games g ON t.game_id = g.id 
               JOIN products p ON t.product_id = p.id 
-              WHERE t.order_id = ? AND (";
+              WHERE t.order_id = ? AND t.account_user_id = ?";
     
-    $params = [$order_id];
-    
-    if (db_has_column($pdo, 'transactions', 'account_user_id')) {
-        $query .= " t.account_user_id = ? ";
-        $params[] = (int)$user_id;
-    } else {
-        $query .= " t.user_id = ? ";
-        $params[] = $user_email;
-    }
-    
-    $query .= ")";
+    $params = [$order_id, (int)$user_id];
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
@@ -114,7 +104,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </tr>
                                 <tr>
                                     <td>User ID</td>
-                                    <td><?php echo $transaction['user_id']; ?></td>
+                                    <td><?php echo htmlspecialchars($transaction['game_user_id']); ?><?php echo $transaction['game_zone_id'] ? " (" . htmlspecialchars($transaction['game_zone_id']) . ")" : ''; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Pembayaran</td>

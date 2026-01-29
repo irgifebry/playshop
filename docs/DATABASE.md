@@ -67,10 +67,10 @@ Riwayat order.
 *   `id`: Primary Key.
 *   `order_id`: String unik order (contoh: TRX-12345).
 *   `game_id`, `product_id`: Referensi item yang dibeli.
-*   `user_id`, `zone_id`: ID akun game target (User ID / Server ID game) - legacy.
 *   `account_user_id`: ID user web yang login (FK ke users).
 *   `account_email`: Email user yang melakukan transaksi.
-*   `game_user_id`, `game_zone_id`: ID game target (format baru).
+*   `game_user_id`: ID akun game target (Mandatory).
+*   `game_zone_id`: ID Server game (NULL jika tidak ada).
 *   `payment_method`: Metode pembayaran yang dipilih.
 *   `subtotal`, `admin_fee`, `discount_amount`: Detail harga.
 *   `voucher_code`: Kode voucher yang dipakai (jika ada).
@@ -107,11 +107,11 @@ Daftar metode pembayaran.
 *   `is_active`: Status aktif/nonaktif.
 
 ### 8. `deposits`
-Riwayat top-up saldo website.
+Riwayat top-up saldo website. Dikelola via `admin/deposits.php`.
 *   `user_id`: FK ke tabel users.
 *   `payment_method_id`: FK ke tabel payment_methods.
 *   `amount`: Jumlah deposit.
-*   `status`: `pending`, `success`, `failed`.
+*   `status`: `pending`, `success`, `failed`. Memerlukan verifikasi Admin.
 
 ### 9. `api_providers`
 Konfigurasi provider top-up pihak ketiga.
@@ -136,7 +136,7 @@ Ulasan pelanggan.
 *   `is_shown`: Tampilkan di website (1/0).
 
 ### 12. `notifications_log`
-Log sistem.
+Log sistem. Bisa dipantau via `admin/logs.php`.
 *   `message`: Pesan log (contoh: [TRANSAKSI SUKSES] Order ID: xxx).
 *   `created_at`: Waktu log dibuat.
 

@@ -106,7 +106,7 @@ $recent_transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </td>
                             <td><?php echo $trx['game_name']; ?></td>
                             <td><?php echo $trx['product_name']; ?></td>
-                            <td><?php echo $trx['user_id']; ?></td>
+                            <td><?php echo htmlspecialchars($trx['game_user_id']); ?></td>
                             <td>Rp <?php echo number_format($trx['amount'], 0, ',', '.'); ?></td>
                             <td>
                                 <span class="status-badge <?php echo $trx['status']; ?>">

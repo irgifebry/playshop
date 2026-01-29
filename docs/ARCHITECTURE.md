@@ -49,6 +49,9 @@ Merupakan area khusus administrator.
 *   Struktur di dalamnya mirip dengan root, namun dilindungi oleh sesi login admin.
 *   `dashboard.php`: Overview statistik dan transaksi terbaru.
 *   `transaction-detail.php`: Detail transaksi dengan kemampuan update status.
+*   `contacts.php`: Kelola pesan masuk dari user.
+*   `deposits.php`: Verifikasi manual deposit saldo.
+*   `logs.php`: Monitoring log sistem (notifications_log).
 *   File CRUD: `games.php`, `products.php`, `users.php`, `banners.php`, `vouchers.php`, `payment-methods.php`, `providers.php`, `posts.php`, `testimonials.php`, `reports.php`, `settings.php`.
 
 ### `/api`
@@ -102,6 +105,27 @@ Dokumentasi proyek.
    - Catat log ke notifications_log
        ↓
 9. User cek status → Pesanan BERHASIL ✅
+```
+
+### Flow Deposit Saldo:
+```
+1. User pilih nominal & metode pembayaran (deposit.php)
+       ↓
+2. User melihat instruksi (rekening/QRIS) (deposit-pay.php)
+       ↓
+3. User klik "Saya Sudah Bayar"
+       ↓
+4. Sistem menampilkan status "Menunggu Verifikasi"
+       ↓
+5. Admin cek mutasi & verifikasi (admin/deposits.php)
+   Admin klik "Setujui/Approve"
+       ↓
+6. Sistem otomatis:
+   - Tambah balance ke tabel users
+   - Ubah status deposit ke SUCCESS
+   - Catat log ke notifications_log
+       ↓
+7. Saldo User bertambah ✅
 ```
 
 ---

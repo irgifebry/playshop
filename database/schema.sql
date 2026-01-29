@@ -103,16 +103,12 @@ CREATE TABLE IF NOT EXISTS transactions (
   game_id INT NOT NULL,
   product_id INT NOT NULL,
 
-  -- Legacy (still used by some pages)
-  user_id VARCHAR(190) NOT NULL,
-  zone_id VARCHAR(100) NULL,
-
   -- Account (logged-in user)
   account_user_id INT NULL,
   account_email VARCHAR(190) NULL,
 
   -- Game identifiers
-  game_user_id VARCHAR(100) NULL,
+  game_user_id VARCHAR(100) NOT NULL,
   game_zone_id VARCHAR(100) NULL,
 
   payment_method VARCHAR(50) NOT NULL,
@@ -239,6 +235,11 @@ CREATE TABLE IF NOT EXISTS settings (
 -- =============================
 -- Seed data
 -- =============================
+SET FOREIGN_KEY_CHECKS = 0;
+
+INSERT INTO users (id, name, email, phone, password, balance, status) VALUES
+(1, 'User Demo', 'user@example.com', '081234567890', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 100000, 'active');
+
 INSERT INTO games (id, name, icon, image_path, description, how_to_topup, faq, color_start, color_end, min_price, is_active, category) VALUES
 (1, 'Mobile Legends', '⚔️', 'uploads/games/mobile legends.jpg', 'Top up Diamond Mobile Legends resmi & cepat.', '1) Masukkan User ID dan Zone ID\n2) Pilih nominal\n3) Pilih pembayaran\n4) Bayar\n5) Diamond masuk.', 'Q: Berapa lama?\nA: 1-5 menit setelah pembayaran sukses.', '#3b82f6', '#1e40af', 15000, 1, 'MOBA'),
 (2, 'Free Fire', '🔥', 'uploads/games/ff.jpg', 'Top up Diamond Free Fire cepat & aman.', '1) Masukkan User ID\n2) Pilih nominal\n3) Pilih pembayaran\n4) Bayar.', 'Q: Bisa refund?\nA: Mengikuti S&K.', '#232c5f', '#4e676d', 5000, 1, 'Action'),
@@ -317,4 +318,20 @@ INSERT INTO testimonials (name, rating, comment, is_shown, created_at) VALUES
 ('Budi Santoso', 4, 'Harganya bersaing bgt sama toko sebelah. Sering-sering promo ya min biar makin rajin top up.', 1, NOW()),
 ('Dimas Andrean', 5, 'Top up Genesis Crystal disini gapernah minus. Legal 100% anti banned club. Thanks min!', 1, NOW()),
 ('Citra Kirana', 5, 'Udah langganan dari jaman game warnet sampe sekarang mobile. Best lah pelayanan Playshop selalu sat set.', 1, NOW());
+
+INSERT INTO contacts (name, email, subject, message, status) VALUES
+('Budi Gunawan', 'budi@example.com', 'Tanya Kerjasama', 'Halo admin, saya ingin menawarkan kerjasama untuk channel YouTube saya.', 'new'),
+('Siska Permata', 'siska@example.com', 'Diamond Belum Masuk', 'Min, saya sudah bayar 10 menit lalu tapi diamond belum masuk ya. Order ID: TRX1712345678.', 'new'),
+('Andi Jaya', 'andi@test.com', 'Metode Pembayaran Baru', 'Bisa tambahkan pembayaran via ShopeePay tidak ya min?', 'closed');
+
+INSERT INTO deposits (user_id, amount, payment_method_id, status) VALUES
+(1, 50000, 2, 'pending'),
+(1, 100000, 1, 'success'),
+(1, 20000, 2, 'failed');
+
+INSERT INTO notifications_log (message) VALUES
+('[SYSTEM SEED] Data percobaan telah dimasukkan.'),
+('[SYSTEM SEED] Admin panel siap digunakan.');
+
+SET FOREIGN_KEY_CHECKS = 1;
 

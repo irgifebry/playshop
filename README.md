@@ -42,6 +42,9 @@ Tujuan utama proyek ini adalah menyediakan contoh implementasi toko online produ
 *   **Manajemen Game**: Tambah, edit, hapus game (ikon, warna, deskripsi).
 *   **Manajemen Produk**: Mengatur nominal top-up dan harga untuk setiap game.
 *   **Manajemen Transaksi**: Melihat dan memproses pesanan masuk.
+*   **Kelola Saldo**: Verifikasi manual deposit saldo dari user (Approve/Reject).
+*   **Manajemen Pesan**: Membaca dan menanggapi pesan dari formulir kontak.
+*   **Log Sistem**: Memantau aktivitas penting sistem (Logs).
 *   **Manajemen Pengguna**: Mengelola data member.
 *   **Manajemen Banner**: Mengganti banner promo di halaman depan.
 *   **Laporan**: Melihat laporan penjualan.

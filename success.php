@@ -35,7 +35,7 @@ try {
         $transaction['game_name'],
         $transaction['product_name'],
         number_format((int)$transaction['amount'], 0, ',', '.'),
-        $transaction['user_id'] ?? 'Guest'
+        $transaction['game_user_id'] ?? 'Guest'
     );
     $stmt = $pdo->prepare("INSERT INTO notifications_log (message, created_at) VALUES (?, NOW())");
     $stmt->execute([$logMessage]);
@@ -117,7 +117,7 @@ try {
                         </tr>
                         <tr>
                             <td>User ID</td>
-                            <td><?php echo htmlspecialchars($transaction['user_id']); ?></td>
+                            <td><?php echo htmlspecialchars($transaction['game_user_id']); ?><?php echo $transaction['game_zone_id'] ? " (" . htmlspecialchars($transaction['game_zone_id']) . ")" : ''; ?></td>
                         </tr>
                         <tr>
                             <td>Total Bayar</td>

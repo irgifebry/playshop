@@ -41,8 +41,11 @@ function nav_active(string $current, string $file): string {
         <a href="providers.php" class="nav-item<?php echo nav_active($current, 'providers.php'); ?>">🔌 API Provider</a>
         <a href="posts.php" class="nav-item<?php echo nav_active($current, 'posts.php'); ?>">📝 Post/Blog</a>
         <a href="testimonials.php" class="nav-item<?php echo nav_active($current, 'testimonials.php'); ?>">💬 Testimoni</a>
+        <a href="contacts.php" class="nav-item<?php echo nav_active($current, 'contacts.php'); ?>">📥 Pesan Masuk</a>
         <a href="reports.php" class="nav-item<?php echo nav_active($current, 'reports.php'); ?>">📈 Laporan</a>
         <a href="users.php" class="nav-item<?php echo nav_active($current, 'users.php'); ?>">👥 Users</a>
+        <a href="deposits.php" class="nav-item<?php echo nav_active($current, 'deposits.php'); ?>">💰 Kelola Saldo</a>
+        <a href="logs.php" class="nav-item<?php echo nav_active($current, 'logs.php'); ?>">📜 Log Sistem</a>
         <a href="settings.php" class="nav-item<?php echo nav_active($current, 'settings.php'); ?>">⚙️ Pengaturan</a>
         <a href="logout.php" class="nav-item">🚪 Logout</a>
     </nav>

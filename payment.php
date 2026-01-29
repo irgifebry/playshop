@@ -45,19 +45,17 @@ $total = max(0, $subtotal + $admin_fee - $discount);
 $order_id = 'TRX' . time() . rand(1000, 9999);
 
 // Prefer new schema columns if available; fallback to legacy columns otherwise
-if (db_has_column($pdo, 'transactions', 'game_user_id')) {
+    // Insert transaction using modern schema (only game_user_id/game_zone_id)
     $stmt = $pdo->prepare("
-        INSERT INTO transactions
-            (order_id, game_id, product_id, user_id, zone_id, account_user_id, account_email, game_user_id, game_zone_id, payment_method, subtotal, admin_fee, discount_amount, voucher_code, amount, status, created_at)
-        VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+        INSERT INTO transactions 
+            (order_id, game_id, product_id, account_user_id, account_email, game_user_id, game_zone_id, payment_method, subtotal, admin_fee, discount_amount, voucher_code, amount, status, created_at) 
+        VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
     ");
     $stmt->execute([
         $order_id,
         $game_id,
         $product_id,
-        $game_user_id,
-        $game_zone_id !== '' ? $game_zone_id : null,
         $account_user_id,
         $account_email,
         $game_user_id,
@@ -69,11 +67,6 @@ if (db_has_column($pdo, 'transactions', 'game_user_id')) {
         strtoupper(trim($voucher_code)),
         $total
     ]);
-} else {
-    // Legacy: store game user id in user_id and zone in zone_id
-    $stmt = $pdo->prepare("INSERT INTO transactions (order_id, game_id, product_id, user_id, zone_id, payment_method, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
-    $stmt->execute([$order_id, $game_id, $product_id, $game_user_id, $game_zone_id, $payment_method, $total]);
-}
 
 $_SESSION['order_id'] = $order_id;
 ?>
